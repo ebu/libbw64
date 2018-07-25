@@ -1,10 +1,12 @@
 # --- unit tests ---
 function(add_bw64_test name)
-  add_executable(${name} ${name}.cpp)
+  add_executable(${name} ${name}.cpp $<TARGET_OBJECTS:catch_main>)
   target_link_libraries(${name}
     PRIVATE
     libbw64
-    Boost::boost
+  )
+  target_include_directories(${name} PRIVATE
+    ${CMAKE_SOURCE_DIR}/submodules
   )
   add_test(
     NAME ${name}
@@ -20,6 +22,9 @@ if(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 else()
   file(COPY ${PROJECT_SOURCE_DIR}/testfiles DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
+
+add_library(catch_main OBJECT main.cpp)
+target_include_directories(catch_main PUBLIC ${CMAKE_SOURCE_DIR}/submodules)
 
 add_bw64_test(utils_tests)
 add_bw64_test(chunk_tests)

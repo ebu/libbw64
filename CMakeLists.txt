@@ -41,17 +41,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS FALSE)
 
 ############################################################
-# find libraries
-############################################################
-find_package(Boost)
-
-# --- Unit tests ---
-if(UNIT_TESTS AND NOT Boost_FOUND)
-  message(STATUS "Boost not found: Disabling UNIT_TESTS")
-  set(UNIT_TESTS FALSE)
-endif()
-
-############################################################
 # configure files
 ############################################################
 configure_file(
