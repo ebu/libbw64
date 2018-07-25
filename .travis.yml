@@ -50,20 +50,18 @@ install:
   - |
     if [[ "$DOCKER_IMAGE" == *"ubuntu"* || "$DOCKER_IMAGE" == *"debian"* ]]; then
       docker exec -t linux bash -c "apt-get update &&
-      apt-get install -y build-essential cmake ninja-build libboost-dev"
+      apt-get install -y build-essential cmake ninja-build"
     fi
   # install dependencies in red hat like systems
   - |
     if [[ "$DOCKER_IMAGE" == *"fedora"* ]]; then
       docker exec -t linux bash -c "dnf -y group install \"Development Tools\" \"C Development Tools and Libraries\" &&
-      dnf -y install cmake ninja-build boost-devel"
+      dnf -y install cmake ninja-build"
     fi
   # install dependencies for macOS
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
       brew install cmake || brew upgrade cmake
-      brew install ninja boost@1.59
-      brew unlink boost && brew link --force boost@1.59
     fi
 
 script:
