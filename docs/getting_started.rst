@@ -9,10 +9,6 @@ Requirements and dependencies
 * compiler with C++11 support
 * CMake build system (version 3.5 or later)
 
-**Optional**
-
-* Boost.Test (unit tests only, header-only version, version 1.59 or later)
-
 Installation
 ------------
 
