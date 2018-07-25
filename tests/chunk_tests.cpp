@@ -1,13 +1,11 @@
+#include <catch2/catch.hpp>
 #include "bw64/bw64.hpp"
 #include "bw64/parser.hpp"
 #include "bw64/utils.hpp"
 
-#define BOOST_TEST_MODULE ChunkTests
-#include <boost/test/included/unit_test.hpp>
-
 using namespace bw64;
 
-BOOST_AUTO_TEST_CASE(format_info_chunk) {
+TEST_CASE("format_info_chunk") {
   // basic test
   {
     const char* formatChunkByteArray =
@@ -18,12 +16,12 @@ BOOST_AUTO_TEST_CASE(format_info_chunk) {
     std::istringstream formatChunkStream(std::string(formatChunkByteArray, 16));
     auto formatInfoChunk =
         parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 16);
-    BOOST_TEST(formatInfoChunk->formatTag() == 1);
-    BOOST_TEST(formatInfoChunk->channelCount() == 1);
-    BOOST_TEST(formatInfoChunk->sampleRate() == 48000);
-    BOOST_TEST(formatInfoChunk->bytesPerSecond() == 96000);
-    BOOST_TEST(formatInfoChunk->blockAlignment() == 2);
-    BOOST_TEST(formatInfoChunk->bitsPerSample() == 16);
+    REQUIRE(formatInfoChunk->formatTag() == 1);
+    REQUIRE(formatInfoChunk->channelCount() == 1);
+    REQUIRE(formatInfoChunk->sampleRate() == 48000);
+    REQUIRE(formatInfoChunk->bytesPerSecond() == 96000);
+    REQUIRE(formatInfoChunk->blockAlignment() == 2);
+    REQUIRE(formatInfoChunk->bitsPerSample() == 16);
   }
   // wrong chunkSize
   {
@@ -34,7 +32,7 @@ BOOST_AUTO_TEST_CASE(format_info_chunk) {
         "\x02\x00\x10\x00"  // blockAlignment = 2; bitsPerSample = 16
         "\x00\x00\x00\x00";
     std::istringstream formatChunkStream(std::string(formatChunkByteArray, 22));
-    BOOST_CHECK_THROW(
+    REQUIRE_THROWS_AS(
         parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 22),
         std::runtime_error);
   }
@@ -46,7 +44,7 @@ BOOST_AUTO_TEST_CASE(format_info_chunk) {
         "\x00\x77\x01\x00"  // bytesPerSecond = 96000
         "\x02\x00\x10\x00";  // blockAlignment = 2; bitsPerSample = 16
     std::istringstream formatChunkStream(std::string(formatChunkByteArray, 16));
-    BOOST_CHECK_THROW(
+    REQUIRE_THROWS_AS(
         parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 16),
         std::runtime_error);
   }
@@ -58,7 +56,7 @@ BOOST_AUTO_TEST_CASE(format_info_chunk) {
         "\x00\x77\x01\x00"  // bytesPerSecond = 96000
         "\x02\x00\x10\x00";  // blockAlignment = 2; bitsPerSample = 16
     std::istringstream formatChunkStream(std::string(formatChunkByteArray, 16));
-    BOOST_CHECK_THROW(
+    REQUIRE_THROWS_AS(
         parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 16),
         std::runtime_error);
   }
@@ -70,7 +68,7 @@ BOOST_AUTO_TEST_CASE(format_info_chunk) {
         "\x00\x77\x01\x00"  // bytesPerSecond = 96000
         "\x02\x00\x10\x00";  // blockAlignment = 2; bitsPerSample = 16
     std::istringstream formatChunkStream(std::string(formatChunkByteArray, 16));
-    BOOST_CHECK_THROW(
+    REQUIRE_THROWS_AS(
         parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 16),
         std::runtime_error);
   }
@@ -82,7 +80,7 @@ BOOST_AUTO_TEST_CASE(format_info_chunk) {
         "\x01\x77\x01\x00"  // bytesPerSecond = 96001
         "\x02\x00\x10\x00";  // blockAlignment = 2; bitsPerSample = 16
     std::istringstream formatChunkStream(std::string(formatChunkByteArray, 16));
-    BOOST_CHECK_THROW(
+    REQUIRE_THROWS_AS(
         parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 16),
         std::runtime_error);
   }
@@ -94,7 +92,7 @@ BOOST_AUTO_TEST_CASE(format_info_chunk) {
         "\x00\x77\x01\x00"  // bytesPerSecond = 96000
         "\x00\x00\x10\x00";  // blockAlignment = 2; bitsPerSample = 16
     std::istringstream formatChunkStream(std::string(formatChunkByteArray, 16));
-    BOOST_CHECK_THROW(
+    REQUIRE_THROWS_AS(
         parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 16),
         std::runtime_error);
   }
@@ -105,13 +103,13 @@ BOOST_AUTO_TEST_CASE(format_info_chunk) {
     formatChunk->write(stream);
     auto formatChunkReread =
         parseFormatInfoChunk(stream, utils::fourCC("fmt "), 16);
-    BOOST_TEST(formatChunkReread->channelCount() == 2);
-    BOOST_TEST(formatChunkReread->sampleRate() == 48000);
-    BOOST_TEST(formatChunkReread->bitsPerSample() == 24);
+    REQUIRE(formatChunkReread->channelCount() == 2);
+    REQUIRE(formatChunkReread->sampleRate() == 48000);
+    REQUIRE(formatChunkReread->bitsPerSample() == 24);
   }
 }
 
-BOOST_AUTO_TEST_CASE(chna_chunk) {
+TEST_CASE("chna_chunk") {
   // basic test
   {
     const char* chnaChunkByteArray =
@@ -123,13 +121,13 @@ BOOST_AUTO_TEST_CASE(chna_chunk) {
         "\x00";  // padding
     std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 52));
     auto chnaChunk = parseChnaChunk(chnaChunkStream, utils::fourCC("chna"), 44);
-    BOOST_TEST(chnaChunk->numTracks() == 1);
-    BOOST_TEST(chnaChunk->numUids() == 1);
-    BOOST_TEST(chnaChunk->audioIds().size() == 1);
-    BOOST_TEST(chnaChunk->audioIds()[0].trackIndex() == 1);
-    BOOST_TEST(chnaChunk->audioIds()[0].uid() == "ATU_00000001");
-    BOOST_TEST(chnaChunk->audioIds()[0].trackRef() == "AT_00031001_01");
-    BOOST_TEST(chnaChunk->audioIds()[0].packRef() == "AP_00031001");
+    REQUIRE(chnaChunk->numTracks() == 1);
+    REQUIRE(chnaChunk->numUids() == 1);
+    REQUIRE(chnaChunk->audioIds().size() == 1);
+    REQUIRE(chnaChunk->audioIds()[0].trackIndex() == 1);
+    REQUIRE(chnaChunk->audioIds()[0].uid() == "ATU_00000001");
+    REQUIRE(chnaChunk->audioIds()[0].trackRef() == "AT_00031001_01");
+    REQUIRE(chnaChunk->audioIds()[0].packRef() == "AP_00031001");
   }
   // read/write
   {
@@ -151,24 +149,24 @@ BOOST_AUTO_TEST_CASE(chna_chunk) {
     }
 
     auto chnaChunkReread = parseChnaChunk(stream, utils::fourCC("chna"), 124);
-    BOOST_TEST(chnaChunkReread->numTracks() == 2);
-    BOOST_TEST(chnaChunkReread->numUids() == 3);
-    BOOST_TEST(chnaChunkReread->audioIds()[0].trackIndex() == 1);
-    BOOST_TEST(chnaChunkReread->audioIds()[0].uid() == "ATU_00000001");
-    BOOST_TEST(chnaChunkReread->audioIds()[0].trackRef() == "AT_00031001_01");
-    BOOST_TEST(chnaChunkReread->audioIds()[0].packRef() == "AP_00031001");
-    BOOST_TEST(chnaChunkReread->audioIds()[1].trackIndex() == 1);
-    BOOST_TEST(chnaChunkReread->audioIds()[1].uid() == "ATU_00000002");
-    BOOST_TEST(chnaChunkReread->audioIds()[1].trackRef() == "AT_00031002_01");
-    BOOST_TEST(chnaChunkReread->audioIds()[1].packRef() == "AP_00031002");
-    BOOST_TEST(chnaChunkReread->audioIds()[2].trackIndex() == 2);
-    BOOST_TEST(chnaChunkReread->audioIds()[2].uid() == "ATU_00000003");
-    BOOST_TEST(chnaChunkReread->audioIds()[2].trackRef() == "AT_00031003_01");
-    BOOST_TEST(chnaChunkReread->audioIds()[2].packRef() == "AP_00031003");
+    REQUIRE(chnaChunkReread->numTracks() == 2);
+    REQUIRE(chnaChunkReread->numUids() == 3);
+    REQUIRE(chnaChunkReread->audioIds()[0].trackIndex() == 1);
+    REQUIRE(chnaChunkReread->audioIds()[0].uid() == "ATU_00000001");
+    REQUIRE(chnaChunkReread->audioIds()[0].trackRef() == "AT_00031001_01");
+    REQUIRE(chnaChunkReread->audioIds()[0].packRef() == "AP_00031001");
+    REQUIRE(chnaChunkReread->audioIds()[1].trackIndex() == 1);
+    REQUIRE(chnaChunkReread->audioIds()[1].uid() == "ATU_00000002");
+    REQUIRE(chnaChunkReread->audioIds()[1].trackRef() == "AT_00031002_01");
+    REQUIRE(chnaChunkReread->audioIds()[1].packRef() == "AP_00031002");
+    REQUIRE(chnaChunkReread->audioIds()[2].trackIndex() == 2);
+    REQUIRE(chnaChunkReread->audioIds()[2].uid() == "ATU_00000003");
+    REQUIRE(chnaChunkReread->audioIds()[2].trackRef() == "AT_00031003_01");
+    REQUIRE(chnaChunkReread->audioIds()[2].packRef() == "AP_00031003");
   }
 }
 
-BOOST_AUTO_TEST_CASE(ds64_chunk) {
+TEST_CASE("ds64_chunk") {
   // basic test
   {
     const char* ds64ChunkByteArray =
@@ -181,11 +179,11 @@ BOOST_AUTO_TEST_CASE(ds64_chunk) {
     std::istringstream ds64ChunkStream(std::string(ds64ChunkByteArray, 40));
     auto ds64Chunk =
         parseDataSize64Chunk(ds64ChunkStream, utils::fourCC("ds64"), 40);
-    BOOST_TEST(ds64Chunk->bw64Size() == 709493966490);
-    BOOST_TEST(ds64Chunk->dataSize() == 578957026724);
-    BOOST_TEST(ds64Chunk->dummySize() == 0);
+    REQUIRE(ds64Chunk->bw64Size() == 709493966490);
+    REQUIRE(ds64Chunk->dataSize() == 578957026724);
+    REQUIRE(ds64Chunk->dummySize() == 0);
     auto axmlId = utils::fourCC("axml");
-    BOOST_TEST(ds64Chunk->getChunkSize(axmlId) == 13130288);
+    REQUIRE(ds64Chunk->getChunkSize(axmlId) == 13130288);
   }
   // read/write
   {
@@ -197,9 +195,9 @@ BOOST_AUTO_TEST_CASE(ds64_chunk) {
     dataSize64Chunk->write(stream);
     auto dataSize64ChunkReread =
         parseDataSize64Chunk(stream, utils::fourCC("ds64"), 40);
-    BOOST_TEST(dataSize64ChunkReread->bw64Size() == 987654321);
-    BOOST_TEST(dataSize64ChunkReread->dataSize() == 123456789);
-    BOOST_TEST(dataSize64ChunkReread->tableLength() == 1);
-    BOOST_TEST(dataSize64ChunkReread->getChunkSize(axmlId) == 654321);
+    REQUIRE(dataSize64ChunkReread->bw64Size() == 987654321);
+    REQUIRE(dataSize64ChunkReread->dataSize() == 123456789);
+    REQUIRE(dataSize64ChunkReread->tableLength() == 1);
+    REQUIRE(dataSize64ChunkReread->getChunkSize(axmlId) == 654321);
   }
 }
