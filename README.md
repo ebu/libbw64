@@ -18,7 +18,7 @@ and write the ADM metadata in the `axml` chunk you may use the
 
 ### Features
 
-- no dependencies (only Boost 1.59 or later for the unit tests)
+- no dependencies
 - support file sizes bigger than 4 GB (`ds64` chunk)
 - read and write `axml` and `chna` chunks
 - 16, 24, and 32 bit integer file formats
