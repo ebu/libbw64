@@ -11,19 +11,11 @@ function(add_bw64_test name)
   add_test(
     NAME ${name}
     COMMAND $<TARGET_FILE:${name}>
-    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test_data
   )
 endfunction()
 
-# copy test files so unit test can find them relative to their running location
-# when executed as "test" target
-if(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-  file(COPY ${PROJECT_SOURCE_DIR}/testfiles DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-else()
-  file(COPY ${PROJECT_SOURCE_DIR}/testfiles DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-add_library(catch_main OBJECT main.cpp)
+add_library(catch_main OBJECT catch_main.cpp)
 target_include_directories(catch_main PUBLIC ${CMAKE_SOURCE_DIR}/submodules)
 
 add_bw64_test(utils_tests)
