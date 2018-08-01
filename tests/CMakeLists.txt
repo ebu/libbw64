@@ -15,6 +15,8 @@ function(add_bw64_test name)
   )
 endfunction()
 
+# this object library provides the main() function and is compiled only once and
+# then included into each test
 add_library(catch_main OBJECT catch_main.cpp)
 target_include_directories(catch_main PUBLIC ${CMAKE_SOURCE_DIR}/submodules)
 
