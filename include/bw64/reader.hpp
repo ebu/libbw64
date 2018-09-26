@@ -199,28 +199,29 @@ namespace bw64 {
     /**
      * @brief Seek a frame position in the DataChunk
      */
-    void seek(uint64_t offset, std::ios_base::seekdir way = std::ios::beg) {
-      uint64_t frameOffset = offset * formatChunk()->blockAlignment();
-      auto chunkPosition = getChunkHeader(utils::fourCC("data")).position + 8u;
-      uint64_t dataChunkOffset;
+    void seek(int32_t offset, std::ios_base::seekdir way = std::ios::beg) {
+      int64_t frameOffset =
+          offset * static_cast<int64_t>(formatChunk()->blockAlignment());
+      uint64_t chunkPosition =
+          getChunkHeader(utils::fourCC("data")).position + 8u;
+      uint64_t dataChunkOffset = 0;
       if (way == std::ios::cur) {
-        dataChunkOffset = tell();
+        dataChunkOffset = fileStream_.tellg();
       } else if (way == std::ios::beg) {
         dataChunkOffset = chunkPosition;
       } else if (way == std::ios::end) {
         dataChunkOffset = chunkPosition + dataChunk()->size();
-      } else {
-        throw std::runtime_error("unknown way value");
       }
-
       fileStream_.clear();
-      if (dataChunkOffset + frameOffset < chunkPosition) {
-        fileStream_.seekg(chunkPosition);
-      } else if (dataChunkOffset + frameOffset >
-                 chunkPosition + dataChunk()->size()) {
-        fileStream_.seekg(chunkPosition + dataChunk()->size());
+      if (frameOffset < 0 && dataChunkOffset < -frameOffset) {
+        fileStream_.seekg(0);
       } else {
         fileStream_.seekg(dataChunkOffset + frameOffset);
+      }
+      if (fileStream_.tellg() < chunkPosition) {
+        fileStream_.seekg(chunkPosition);
+      } else if (fileStream_.tellg() > chunkPosition + dataChunk()->size()) {
+        fileStream_.seekg(chunkPosition + dataChunk()->size());
       }
     }
 
@@ -240,7 +241,7 @@ namespace bw64 {
       }
       rawDataBuffer_.resize(frames * blockAlignment());
       fileStream_.read(&rawDataBuffer_[0], frames * blockAlignment());
-      utils::decodePcmSamples(rawDataBuffer_.data(), outBuffer,
+      utils::decodePcmSamples(&rawDataBuffer_[0], outBuffer,
                               frames * channels(), bitDepth());
       return frames;
     }
@@ -252,7 +253,7 @@ namespace bw64 {
      */
     uint64_t tell() {
       return ((uint64_t)fileStream_.tellg() -
-              getChunkHeader(utils::fourCC("data")).position) /
+              getChunkHeader(utils::fourCC("data")).position - 8u) /
              formatChunk()->blockAlignment();
     }
 
