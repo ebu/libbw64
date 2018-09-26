@@ -133,6 +133,45 @@ TEST_CASE("encode_pcm_samples_32bit") {
   }
 }
 
+TEST_CASE("encode_decode_pcm_samples_16bit") {
+  char encoded16bit[10];
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
+  float decodedSamples[] = {0.f, 0.f, 0.f, 0.f, 0.f};
+  utils::encodePcmSamples(samples, encoded16bit, 5, 16);
+  utils::decodePcmSamples(encoded16bit, decodedSamples, 5, 16);
+  REQUIRE(samples[0] == Approx(decodedSamples[0]).epsilon(1e-2));
+  REQUIRE(samples[1] == Approx(decodedSamples[1]).epsilon(1e-2));
+  REQUIRE(samples[2] == Approx(decodedSamples[2]).epsilon(1e-2));
+  REQUIRE(samples[3] == Approx(decodedSamples[3]).epsilon(1e-2));
+  REQUIRE(samples[4] == Approx(decodedSamples[4]).epsilon(1e-2));
+}
+
+TEST_CASE("encode_decode_pcm_samples_24bit") {
+  char encoded24bit[15];
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
+  float decodedSamples[] = {0.f, 0.f, 0.f, 0.f, 0.f};
+  utils::encodePcmSamples(samples, encoded24bit, 5, 24);
+  utils::decodePcmSamples(encoded24bit, decodedSamples, 5, 24);
+  REQUIRE(samples[0] == Approx(decodedSamples[0]).epsilon(1e-3));
+  REQUIRE(samples[1] == Approx(decodedSamples[1]).epsilon(1e-3));
+  REQUIRE(samples[2] == Approx(decodedSamples[2]).epsilon(1e-3));
+  REQUIRE(samples[3] == Approx(decodedSamples[3]).epsilon(1e-3));
+  REQUIRE(samples[4] == Approx(decodedSamples[4]).epsilon(1e-3));
+}
+
+TEST_CASE("encode_decode_pcm_samples_32bit") {
+  char encoded32bit[20];
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
+  float decodedSamples[] = {0.f, 0.f, 0.f, 0.f, 0.f};
+  utils::encodePcmSamples(samples, encoded32bit, 5, 32);
+  utils::decodePcmSamples(encoded32bit, decodedSamples, 5, 32);
+  REQUIRE(samples[0] == Approx(decodedSamples[0]).epsilon(1e-6));
+  REQUIRE(samples[1] == Approx(decodedSamples[1]).epsilon(1e-6));
+  REQUIRE(samples[2] == Approx(decodedSamples[2]).epsilon(1e-6));
+  REQUIRE(samples[3] == Approx(decodedSamples[3]).epsilon(1e-6));
+  REQUIRE(samples[4] == Approx(decodedSamples[4]).epsilon(1e-6));
+}
+
 TEST_CASE("write_chunk_with_padding") {
   auto axmlChunk = std::make_shared<AxmlChunk>("123456789");
   std::ostringstream stream;
