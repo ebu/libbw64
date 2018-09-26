@@ -57,3 +57,12 @@ TEST_CASE("noise_24bit_uneven_data_chunk_size") {
   REQUIRE(bw64File.numberOfFrames() == 13);
   REQUIRE(bw64File.chnaChunk() != nullptr);  // XXX
 }
+
+TEST_CASE("can_read_all_frames") {
+  int frames = 13;
+  auto bw64File = readFile("noise_24bit_uneven_data_chunk_size.wav");
+  REQUIRE(bw64File->numberOfFrames() == 13);
+  std::vector<float> data(frames * bw64File->channels(), 0.f);
+  int readSampleCount = bw64File->read(&data[0], frames);
+  REQUIRE(readSampleCount == 13);
+}
