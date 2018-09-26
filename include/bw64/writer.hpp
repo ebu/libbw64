@@ -185,7 +185,7 @@ namespace bw64 {
       fileStream_.seekp(0, std::ios::end);
       uint64_t endPos = fileStream_.tellp();
       fileStream_.seekp(last_position);
-      return endPos - 12u;
+      return endPos - 8u;
     }
 
     /// @brief Write RIFF header
