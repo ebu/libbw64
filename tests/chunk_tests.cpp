@@ -141,13 +141,6 @@ TEST_CASE("chna_chunk") {
         AudioId(2, "ATU_00000003", "AT_00031003_01", "AP_00031003"));
     chnaChunk->write(stream);
 
-    std::cout << chnaChunk->numTracks() << std::endl;
-    std::cout << chnaChunk->numUids() << std::endl;
-    for (auto audioId : chnaChunk->audioIds()) {
-      std::cout << audioId.trackIndex() << " " << audioId.uid() << " "
-                << audioId.trackRef() << " " << audioId.packRef() << std::endl;
-    }
-
     auto chnaChunkReread = parseChnaChunk(stream, utils::fourCC("chna"), 124);
     REQUIRE(chnaChunkReread->numTracks() == 2);
     REQUIRE(chnaChunkReread->numUids() == 3);
