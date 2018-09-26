@@ -164,6 +164,51 @@ TEST_CASE("chna_chunk") {
     REQUIRE(chnaChunkReread->audioIds()[2].trackRef() == "AT_00031003_01");
     REQUIRE(chnaChunkReread->audioIds()[2].packRef() == "AP_00031003");
   }
+  // throws
+  {  // wrong fourCC
+    const char* chnaChunkByteArray = "\x00\x00";  // padding
+    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 2));
+    REQUIRE_THROWS_AS(parseChnaChunk(chnaChunkStream, utils::fourCC("chni"), 2),
+                      std::runtime_error);
+  }
+  {  // wrong size
+    const char* chnaChunkByteArray = "\x00\x00";  // padding
+    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 2));
+    REQUIRE_THROWS_AS(parseChnaChunk(chnaChunkStream, utils::fourCC("chna"), 2),
+                      std::runtime_error);
+  }
+  {  // wrong size
+    const char* chnaChunkByteArray = "\x00\x00";  // padding
+    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 2));
+    REQUIRE_THROWS_AS(parseChnaChunk(chnaChunkStream, utils::fourCC("chna"), 2),
+                      std::runtime_error);
+  }
+  {  // wrong numTracks
+    const char* chnaChunkByteArray =
+        "\x02\x00\x01\x00"  // numTracks = 2; numUids = 1
+        "\x01\x00"  // trackIndex = 1
+        "\x41\x54\x55\x5f\x30\x30\x30\x30\x30\x30\x30"  // ATU_00000001
+        "\x31\x41\x54\x5f\x30\x30\x30\x33\x31\x30\x30\x31\x5f\x30"  // AT_00031001_01
+        "\x31\x41\x50\x5f\x30\x30\x30\x33\x31\x30\x30\x31"  // AP_00031001
+        "\x00";  // padding
+    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 52));
+    REQUIRE_THROWS_AS(
+        parseChnaChunk(chnaChunkStream, utils::fourCC("chna"), 44),
+        std::runtime_error);
+  }
+  {  // wrong numUids
+    const char* chnaChunkByteArray =
+        "\x01\x00\x02\x00"  // numTracks = 1; numUids = 2
+        "\x01\x00"  // trackIndex = 1
+        "\x41\x54\x55\x5f\x30\x30\x30\x30\x30\x30\x30"  // ATU_00000001
+        "\x31\x41\x54\x5f\x30\x30\x30\x33\x31\x30\x30\x31\x5f\x30"  // AT_00031001_01
+        "\x31\x41\x50\x5f\x30\x30\x30\x33\x31\x30\x30\x31"  // AP_00031001
+        "\x00";  // padding
+    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 52));
+    REQUIRE_THROWS_AS(
+        parseChnaChunk(chnaChunkStream, utils::fourCC("chna"), 44),
+        std::runtime_error);
+  }
 }
 
 TEST_CASE("ds64_chunk") {
