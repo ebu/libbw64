@@ -245,4 +245,21 @@ TEST_CASE("ds64_chunk") {
     REQUIRE(dataSize64ChunkReread->tableLength() == 1);
     REQUIRE(dataSize64ChunkReread->getChunkSize(axmlId) == 654321);
   }
+  // throws
+  {  // wrong fourCC
+    const char* ds64ChunkByteArray =
+        "\x9a\xc6\x22\x31\xa5\x00\x00\x00";  // bw64Size = 709493966490
+    std::istringstream ds64ChunkStream(std::string(ds64ChunkByteArray, 8));
+    REQUIRE_THROWS_AS(
+        parseDataSize64Chunk(ds64ChunkStream, utils::fourCC("ds65"), 8),
+        std::runtime_error);
+  }
+  {  // wrong size
+    const char* ds64ChunkByteArray =
+        "\x9a\xc6\x22\x31\xa5\x00\x00\x00";  // bw64Size = 709493966490
+    std::istringstream ds64ChunkStream(std::string(ds64ChunkByteArray, 8));
+    REQUIRE_THROWS_AS(
+        parseDataSize64Chunk(ds64ChunkStream, utils::fourCC("ds64"), 8),
+        std::runtime_error);
+  }
 }
