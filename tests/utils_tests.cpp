@@ -3,6 +3,13 @@
 
 using namespace bw64;
 
+TEST_CASE("fourCC") {
+  REQUIRE(utils::fourCCToStr(utils::fourCC("RIFF")) == "RIFF");
+  REQUIRE(utils::fourCCToStr(utils::fourCC("fmt ")) == "fmt ");
+  REQUIRE(utils::fourCCToStr(utils::fourCC("chna")) == "chna");
+  REQUIRE(utils::fourCCToStr(utils::fourCC("axml")) == "axml");
+}
+
 TEST_CASE("decode_pcm_samples_8bit") {
   float decodedSamples[5];
   const char* encoded8bit = "\x00\x7f\x81";
