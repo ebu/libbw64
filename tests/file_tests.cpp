@@ -4,58 +4,109 @@
 
 using namespace bw64;
 
-TEST_CASE("rect_16bit") {
-  Bw64Reader bw64File("rect_16bit.wav");
-  REQUIRE(bw64File.bitDepth() == 16);
-  REQUIRE(bw64File.sampleRate() == 44100);
-  REQUIRE(bw64File.channels() == 2);
-  REQUIRE(bw64File.numberOfFrames() == 22050);
+TEST_CASE("read_file_not_found") {
+  REQUIRE_THROWS_AS(readFile("file_not_found.wav"), std::runtime_error);
 }
 
-TEST_CASE("rect_24bit") {
-  Bw64Reader bw64File("rect_24bit.wav");
-  REQUIRE(bw64File.bitDepth() == 24);
-  REQUIRE(bw64File.sampleRate() == 44100);
-  REQUIRE(bw64File.channels() == 2);
-  REQUIRE(bw64File.numberOfFrames() == 22050);
+TEST_CASE("read_rect_16bit") {
+  auto bw64File = readFile("rect_16bit.wav");
+  REQUIRE(bw64File->formatTag() == 1u);
+  REQUIRE(bw64File->bitDepth() == 16u);
+  REQUIRE(bw64File->sampleRate() == 44100u);
+  REQUIRE(bw64File->channels() == 2u);
+  REQUIRE(bw64File->numberOfFrames() == 22050u);
 }
 
-TEST_CASE("rect_32bit") {
-  Bw64Reader bw64File("rect_32bit.wav");
-  REQUIRE(bw64File.bitDepth() == 32);
-  REQUIRE(bw64File.sampleRate() == 44100);
-  REQUIRE(bw64File.channels() == 2);
-  REQUIRE(bw64File.numberOfFrames() == 22050);
+TEST_CASE("read_rect_24bit") {
+  auto bw64File = readFile("rect_24bit.wav");
+  REQUIRE(bw64File->formatTag() == 1u);
+  REQUIRE(bw64File->bitDepth() == 24u);
+  REQUIRE(bw64File->sampleRate() == 44100u);
+  REQUIRE(bw64File->channels() == 2u);
+  REQUIRE(bw64File->numberOfFrames() == 22050u);
 }
 
-TEST_CASE("rect_24bit_rf64") {
-  Bw64Reader bw64File("rect_24bit_rf64.wav");
-  REQUIRE(bw64File.bitDepth() == 24);
-  REQUIRE(bw64File.sampleRate() == 44100);
-  REQUIRE(bw64File.channels() == 2);
-  REQUIRE(bw64File.numberOfFrames() == 22050);
+TEST_CASE("read_rect_32bit") {
+  auto bw64File = readFile("rect_32bit.wav");
+  REQUIRE(bw64File->formatTag() == 1u);
+  REQUIRE(bw64File->bitDepth() == 32u);
+  REQUIRE(bw64File->sampleRate() == 44100u);
+  REQUIRE(bw64File->channels() == 2u);
+  REQUIRE(bw64File->numberOfFrames() == 22050u);
 }
 
-TEST_CASE("rect_24bit_noriff") {
+TEST_CASE("read_rect_24bit_rf64") {
+  auto bw64File = readFile("rect_24bit_rf64.wav");
+  REQUIRE(bw64File->formatTag() == 1u);
+  REQUIRE(bw64File->bitDepth() == 24u);
+  REQUIRE(bw64File->sampleRate() == 44100u);
+  REQUIRE(bw64File->channels() == 2u);
+  REQUIRE(bw64File->numberOfFrames() == 22050u);
+}
+
+TEST_CASE("read_rect_24bit_noriff") {
   REQUIRE_THROWS_AS(Bw64Reader("rect_24bit_noriff.wav"), std::runtime_error);
 }
 
-TEST_CASE("rect_24bit_nowave") {
+TEST_CASE("read_rect_24bit_nowave") {
   REQUIRE_THROWS_AS(Bw64Reader("rect_24bit_nowave.wav"), std::runtime_error);
 }
 
-TEST_CASE("rect_24bit_wrong_fmt_size") {
+TEST_CASE("read_rect_24bit_wrong_fmt_size") {
   REQUIRE_THROWS_AS(Bw64Reader("rect_24bit_wrong_fmt_size.wav"),
                     std::runtime_error);
 }
 
-TEST_CASE("noise_24bit_uneven_data_chunk_size") {
-  Bw64Reader bw64File("noise_24bit_uneven_data_chunk_size.wav");
-  REQUIRE(bw64File.bitDepth() == 24);
-  REQUIRE(bw64File.sampleRate() == 44100);
-  REQUIRE(bw64File.channels() == 1);
-  REQUIRE(bw64File.numberOfFrames() == 13);
-  REQUIRE(bw64File.chnaChunk() != nullptr);  // XXX
+TEST_CASE("read_noise_24bit_uneven_data_chunk_size") {
+  auto bw64File = readFile("noise_24bit_uneven_data_chunk_size.wav");
+  REQUIRE(bw64File->bitDepth() == 24);
+  REQUIRE(bw64File->sampleRate() == 44100);
+  REQUIRE(bw64File->channels() == 1);
+  REQUIRE(bw64File->numberOfFrames() == 13);
+  REQUIRE(bw64File->hasChunk(utils::fourCC("chna")) == true);
+  REQUIRE(bw64File->chnaChunk() != nullptr);
+  REQUIRE(bw64File->hasChunk(utils::fourCC("axml")) == false);
+  REQUIRE(bw64File->axmlChunk() == nullptr);
+}
+
+TEST_CASE("read_check_chunks") {
+  auto bw64File = readFile("rect_16bit.wav");
+  REQUIRE(bw64File->chunks().size() == 2);
+  REQUIRE(utils::fourCCToStr(bw64File->chunks().at(0).id) == "fmt ");
+  REQUIRE(utils::fourCCToStr(bw64File->chunks().at(1).id) == "data");
+  REQUIRE(bw64File->hasChunk(utils::fourCC("fmt ")) == true);
+  REQUIRE(bw64File->hasChunk(utils::fourCC("chna")) == false);
+  REQUIRE(bw64File->hasChunk(utils::fourCC("axml")) == false);
+}
+
+TEST_CASE("read_seek_tell") {
+  auto bw64File = readFile("rect_16bit.wav");
+  // should be positioned at the beginning after opening
+  REQUIRE(bw64File->tell() == 0);
+
+  // std::ios::beg
+  bw64File->seek(INT32_MIN);
+  REQUIRE(bw64File->tell() == 0);
+  bw64File->seek(11025);
+  REQUIRE(bw64File->tell() == 11025);
+  bw64File->seek(22060);
+  REQUIRE(bw64File->tell() == 22050);
+
+  // std::ios::cur
+  bw64File->seek(INT32_MIN, std::ios::cur);
+  REQUIRE(bw64File->tell() == 0);
+  bw64File->seek(11025, std::ios::cur);
+  REQUIRE(bw64File->tell() == 11025);
+  bw64File->seek(INT32_MAX, std::ios::cur);
+  REQUIRE(bw64File->tell() == 22050);
+
+  // std::ios::end
+  bw64File->seek(INT32_MIN, std::ios::end);
+  REQUIRE(bw64File->tell() == 0);
+  bw64File->seek(-11025, std::ios::end);
+  REQUIRE(bw64File->tell() == 11025);
+  bw64File->seek(INT32_MAX, std::ios::end);
+  REQUIRE(bw64File->tell() == 22050);
 }
 
 TEST_CASE("write_16bit") {
