@@ -11,7 +11,7 @@ TEST_CASE("decode_pcm_samples_8bit") {
 }
 
 TEST_CASE("decode_pcm_samples_16bit") {
-  const float samples[] = {0.0, 1.0, -1.0, 0.5, -0.5};
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
   float decodedSamples[5];
 
   const char* encoded16bit =
@@ -30,7 +30,7 @@ TEST_CASE("decode_pcm_samples_16bit") {
 }
 
 TEST_CASE("decode_pcm_samples_24bit") {
-  const float samples[] = {0.0, 1.0, -1.0, 0.5, -0.5};
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
   float decodedSamples[5];
 
   const char* encoded24bit =
@@ -49,7 +49,7 @@ TEST_CASE("decode_pcm_samples_24bit") {
 }
 
 TEST_CASE("decode_pcm_samples_32bit") {
-  const float samples[] = {0.0, 1.0, -1.0, 0.5, -0.5};
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
   float decodedSamples[5];
 
   const char* encoded32bit =
@@ -68,7 +68,7 @@ TEST_CASE("decode_pcm_samples_32bit") {
 }
 
 TEST_CASE("encode_pcm_samples_8bit") {
-  const float samples[] = {0.0, 1.0, -1.0, 0.5, -0.5};
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
   char encoded8bit[5];
 
   REQUIRE_THROWS_AS(utils::encodePcmSamples(samples, encoded8bit, 5, 8),
@@ -84,7 +84,7 @@ TEST_CASE("encode_pcm_samples_16bit") {
       "\x01\xc0";
   char encoded16bit[10];
 
-  const float samples[] = {0.0, 1.0, -1.0, 0.5, -0.5};
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
   utils::encodePcmSamples(samples, encoded16bit, 5, 16);
 
   for (int byte = 0; byte < 10; ++byte) {
@@ -101,7 +101,7 @@ TEST_CASE("encode_pcm_samples_24bit") {
       "\x01\x00\xc0";
   char encoded24bit[15];
 
-  const float samples[] = {0.0, 1.0, -1.0, 0.5, -0.5};
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
   utils::encodePcmSamples(samples, encoded24bit, 5, 24);
 
   for (int byte = 0; byte < 15; ++byte) {
@@ -118,7 +118,7 @@ TEST_CASE("encode_pcm_samples_32bit") {
       "\x01\x00\x00\xc0";
   char encoded32bit[20];
 
-  const float samples[] = {0.0, 1.0, -1.0, 0.5, -0.5};
+  const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
   utils::encodePcmSamples(samples, encoded32bit, 5, 32);
 
   for (int byte = 0; byte < 20; ++byte) {
