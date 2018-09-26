@@ -86,6 +86,10 @@ namespace bw64 {
      */
     ~Bw64Reader() { fileStream_.close(); }
 
+    /// @brief Get file format (RIFF, BW64 or RF64)
+    uint32_t fileFormat() const { return fileFormat_; }
+    /// @brief Get file size
+    uint32_t fileSize() const { return fileSize_; }
     /// @brief Get format tag
     uint16_t formatTag() const { return formatTag_; };
     /// @brief Get number of channels
