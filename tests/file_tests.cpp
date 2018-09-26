@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 #include <sstream>
+#include <random>
 #include "bw64/bw64.hpp"
 
 using namespace bw64;
@@ -202,6 +203,42 @@ TEST_CASE("write_read_32bit_clipped") {
   REQUIRE(data.at(800) == Approx(1.f).epsilon(1e-6));
   REQUIRE(data.at(1600) == Approx(1.f).epsilon(1e-6));
   REQUIRE(data.at(3200) == Approx(1.f).epsilon(1e-6));
+}
+
+void writeRandom(const std::string& filename, uint16_t bitDepth,
+                 uint64_t frames, uint16_t channels = 1u,
+                 uint16_t sampleRate = 48000u) {
+  // Generate vector with random values between -1.f and 1.f
+  std::random_device rd;
+  std::mt19937 engine(rd());
+  std::uniform_real_distribution<float> dist(-1.f, 1.f);
+  auto gen = [&]() { return dist(engine); };
+  std::vector<float> data(frames * channels);
+  generate(begin(data), end(data), gen);
+
+  auto bw64File = writeFile(filename, channels, sampleRate, bitDepth);
+  bw64File->write(&data[0], frames);
+}
+
+TEST_CASE("write_read_riff_header") {
+  int frames = 4800;
+  writeRandom("write_read_riff_header.wav", 32, frames);
+  auto bw64File = readFile("write_read_riff_header.wav");
+  REQUIRE(bw64File->fileFormat() == utils::fourCC("RIFF"));
+  /**
+   * 'WAVE' chunk header  :      4 bytes
+   * 'JUNK' chunk header  :      8 bytes
+   * 'JUNK' chunk payload :     28 bytes
+   * 'fmt ' chunk header  :      8 bytes
+   * 'fmt ' chunk payload :     16 bytes
+   * 'chna' chunk header  :      8 bytes
+   * 'chna' chunk payload : 40.964 bytes (1024 * 40 bytes per UID + 4 bytes
+   * (numTracks/numUIDs) 'data' chunk header  :      8 bytes 'data' chunk
+   * payload : 19.200 bytes (2 channels * 2 bytes per samples * 4800 frames)
+   * --------------------------------------------------------------------------
+   *                        60244 bytes
+   */
+  REQUIRE(bw64File->fileSize() == 60244);
 }
 
 TEST_CASE("can_read_all_frames") {
