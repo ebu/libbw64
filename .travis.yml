@@ -6,37 +6,49 @@ matrix:
     - os: linux
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=debian:9
+      env: DOCKER_IMAGE=debian:9 CMAKE_BUILD_TYPE=Release
     - os: linux
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=ubuntu:17.10
+      env: DOCKER_IMAGE=ubuntu:17.10 CMAKE_BUILD_TYPE=Release
     - os: linux
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=ubuntu:18.04
+      env: DOCKER_IMAGE=ubuntu:18.04 CMAKE_BUILD_TYPE=Release
     - os: linux
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=ubuntu:18.10
+      env: DOCKER_IMAGE=ubuntu:18.10 CMAKE_BUILD_TYPE=Release
     - os: linux
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=fedora:26
+      env: DOCKER_IMAGE=fedora:26 CMAKE_BUILD_TYPE=Release
     - os: linux
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=fedora:27
+      env: DOCKER_IMAGE=fedora:27 CMAKE_BUILD_TYPE=Release
     - os: linux
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=fedora:28
+      env: DOCKER_IMAGE=fedora:28 CMAKE_BUILD_TYPE=Release
+
     - os: osx
       osx_image: xcode7.3
+      env: CMAKE_BUILD_TYPE=Release
     - os: osx
       osx_image: xcode8.3
+      env: CMAKE_BUILD_TYPE=Release
     - os: osx
       osx_image: xcode9.4
+      env: CMAKE_BUILD_TYPE=Release
+    - os: osx
+      osx_image: xcode10.1
+      env: CMAKE_BUILD_TYPE=Release
+
+    - os: linux
+      sudo: required
+      services: docker
+      env: DOCKER_IMAGE=debian:9 CMAKE_BUILD_TYPE=Coverage
 
 before_install:
   - |
@@ -58,23 +70,36 @@ install:
       docker exec -t linux bash -c "dnf -y group install \"Development Tools\" \"C Development Tools and Libraries\" &&
       dnf -y install cmake ninja-build"
     fi
-  # install dependencies for macOS
+  # install dependencies for coverage
   - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      brew install cmake || brew upgrade cmake
-      brew install ninja
+    if [[ "$DOCKER_IMAGE" == *"debian"* && "${CMAKE_BUILD_TYPE}" == "Coverage" ]]; then
+      docker exec -t linux bash -c "apt-get update &&
+      apt-get install -y git python-pip &&
+      pip install codecov"
     fi
 
 script:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       docker exec -t linux bash -c "cd /travis;
-      mkdir build && cd build && cmake -G Ninja .. &&
+      mkdir build && cd build && cmake -G Ninja  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} .. &&
       ninja && ninja test"
     fi
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
       cd "${TRAVIS_BUILD_DIR}"
-      mkdir build && cd build && cmake -G Ninja .. &&
-      ninja && ninja test
+      mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} .. &&
+      make -j2 && ctest --output-on-failure
+    fi
+
+after_success:
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${CMAKE_BUILD_TYPE}" == "Coverage" ]]; then
+      docker exec -t linux bash -c "cd /travis && codecov \
+        --token ${CODECOV_UPLOAD_TOKEN} \
+        --branch ${TRAVIS_BRANCH} \
+        --build ${TRAVIS_JOB_NUMBER} \
+        --pr ${TRAVIS_PULL_REQUEST} \
+        --slug ${TRAVIS_REPO_SLUG} \
+        --commit ${TRAVIS_COMMIT}"
     fi
