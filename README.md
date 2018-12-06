@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/IRT-Open-Source/libbw64.svg?branch=master)](https://travis-ci.org/IRT-Open-Source/libbw64)
 [![Build status](https://ci.appveyor.com/api/projects/status/22p267utk363c84i/branch/master?svg=true)](https://ci.appveyor.com/project/opensourceirt/libbw64/branch/master)
 [![Documentation Status](https://readthedocs.org/projects/libbw64/badge/?version=latest)](https://libbw64.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/IRT-Open-Source/libbw64/branch/master/graph/badge.svg)](https://codecov.io/gh/IRT-Open-Source/libbw64)
 
 ## Introduction
 
