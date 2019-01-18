@@ -9,7 +9,7 @@ include_directories(include)
 ############################################################
 # init project
 ############################################################
-project(libbw64 VERSION 0.9.0)
+project(libbw64 VERSION 0.10.0)
 string(TIMESTAMP PROJECT_BUILD_DATE)
 set(PROJECT_DESCRIPTION "ITU-R BS.2088 Library")
 
