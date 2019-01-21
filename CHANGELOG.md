@@ -4,7 +4,14 @@
 
 ### Added
 
+- library can now easier be used as a CMake subproject
+- new CMake option `BW64_PACKAGE_AND_INSTALL`
+
 ### Changed
+
+- Renamed CMake library target name from `libbw64` to `bw64`
+- Renamed CMake option `UNIT_TESTS` to `BW64_UNIT_TESTS`
+- Renamed CMake option `EXAMPLES` to `BW64_EXAMPLES`
 
 ### Fixed
 
