@@ -204,11 +204,11 @@ namespace bw64 {
      * @brief Seek a frame position in the DataChunk
      */
     void seek(int32_t offset, std::ios_base::seekdir way = std::ios::beg) {
-      int64_t frameOffset =
+      const int64_t frameOffset =
           offset * static_cast<int64_t>(formatChunk()->blockAlignment());
-      uint64_t chunkPosition =
-          getChunkHeader(utils::fourCC("data")).position + 8u;
-      uint64_t dataChunkOffset = 0;
+      const int64_t chunkPosition =
+          getChunkHeader(utils::fourCC("data")).position + 8;
+      int64_t dataChunkOffset = 0;
       if (way == std::ios::cur) {
         dataChunkOffset = fileStream_.tellg();
       } else if (way == std::ios::beg) {
@@ -222,9 +222,11 @@ namespace bw64 {
       } else {
         fileStream_.seekg(dataChunkOffset + frameOffset);
       }
-      if (fileStream_.tellg() < chunkPosition) {
+      const int64_t fileStreamPos = fileStream_.tellg();
+      if (fileStreamPos < chunkPosition) {
         fileStream_.seekg(chunkPosition);
-      } else if (fileStream_.tellg() > chunkPosition + dataChunk()->size()) {
+      } else if (fileStreamPos >
+                 chunkPosition + static_cast<int64_t>(dataChunk()->size())) {
         fileStream_.seekg(chunkPosition + dataChunk()->size());
       }
     }
