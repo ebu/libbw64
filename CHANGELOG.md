@@ -15,6 +15,8 @@
 
 ### Fixed
 
+- Fix sample rate parameter type in `writeFile()` and `BW64Writer` ctor to support 96k samplerates
+
 ## 0.10.0 - (January 18, 2019)
 ### Added
 

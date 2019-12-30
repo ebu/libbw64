@@ -46,7 +46,7 @@ namespace bw64 {
      * @note For convenience, you might consider using the `writeFile` helper
      * function.
      */
-    Bw64Writer(const char* filename, uint16_t channels, uint16_t sampleRate,
+    Bw64Writer(const char* filename, uint16_t channels, uint32_t sampleRate,
                uint16_t bitDepth,
                std::vector<std::shared_ptr<Chunk>> additionalChunks) {
       fileStream_.open(filename, std::fstream::out | std::fstream::binary);
