@@ -151,7 +151,7 @@ TEST_CASE("write_32bit") {
 
 void writeClipped(const std::string& filename, uint16_t bitDepth,
                   uint64_t frames, uint16_t channels = 1u,
-                  uint16_t sampleRate = 48000u) {
+                  uint32_t sampleRate = 48000u) {
   auto bw64File = writeFile(filename, channels, sampleRate, bitDepth);
   std::vector<float> data(frames * channels, 2.f);
   bw64File->write(&data[0], frames);
@@ -207,7 +207,7 @@ TEST_CASE("write_read_32bit_clipped") {
 
 void writeRandom(const std::string& filename, uint16_t bitDepth,
                  uint64_t frames, uint16_t channels = 1u,
-                 uint16_t sampleRate = 48000u) {
+                 uint32_t sampleRate = 48000u) {
   // Generate vector with random values between -1.f and 1.f
   std::random_device rd;
   std::mt19937 engine(rd());
@@ -239,6 +239,13 @@ TEST_CASE("write_read_riff_header") {
    *                        60244 bytes
    */
   REQUIRE(bw64File->fileSize() == 60244);
+}
+
+TEST_CASE("write_read_96000") {
+  int frames = 9600;
+  writeRandom("write_read_96000.wav", 32, frames, 1u, 96000u);
+  auto bw64File = readFile("write_read_96000.wav");
+  REQUIRE(bw64File->sampleRate() == 96000u);
 }
 
 TEST_CASE("can_read_all_frames") {

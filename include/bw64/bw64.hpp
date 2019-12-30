@@ -47,7 +47,7 @@ namespace bw64 {
    */
   inline std::unique_ptr<Bw64Writer> writeFile(
       const std::string& filename, uint16_t channels = 1u,
-      uint16_t sampleRate = 48000u, uint16_t bitDepth = 24u,
+      uint32_t sampleRate = 48000u, uint16_t bitDepth = 24u,
       std::shared_ptr<ChnaChunk> chnaChunk = nullptr,
       std::shared_ptr<AxmlChunk> axmlChunk = nullptr) {
     std::vector<std::shared_ptr<Chunk>> additionalChunks;
