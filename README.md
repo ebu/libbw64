@@ -157,6 +157,10 @@ int main(int argc, char const* argv[]) {
 
 See the [examples folder](examples) in the repository for more examples.
 
+## Credits
+
+*libbw64* is originally a development of the [IRT](https://www.irt.de).
+
 ## Acknowledgement
 
 This project has received funding from the European Union’s Horizon 2020
@@ -165,7 +169,7 @@ research and innovation programme under grant agreement No 687645.
 ## License
 
 ```
-Copyright 2018 Institut fuer Rundfunktechnik GmbH (IRT)
+Copyright 2018-2020 The libbw64 Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
