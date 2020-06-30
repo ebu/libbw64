@@ -18,6 +18,9 @@ RIFF chunks – the `axml` chunk and the `chna` chunk. To parse, create, modify
 and write the ADM metadata in the `axml` chunk you may use the
 [`libadm`](https://github.com/irt-open-source/libadm) library.
 
+[Read the documentation](https://libbw64.readthedocs.io/en/latest/) to get
+started.
+
 ### Features
 
 - no dependencies
