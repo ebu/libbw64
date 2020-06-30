@@ -1,7 +1,8 @@
 # libbw64 – ITU-R BS.2088 Library
 
-[![Build Status](https://travis-ci.org/IRT-Open-Source/libbw64.svg?branch=master)](https://travis-ci.org/IRT-Open-Source/libbw64)
-[![Build status](https://ci.appveyor.com/api/projects/status/22p267utk363c84i/branch/master?svg=true)](https://ci.appveyor.com/project/opensourceirt/libbw64/branch/master)
+[![](https://github.com/IRT-Open-Source/libbw64/workflows/Linux/badge.svg)](https://github.com/IRT-Open-Source/libbw64/actions?workflow=Linux)
+[![](https://github.com/IRT-Open-Source/libbw64/workflows/macOS/badge.svg)](https://github.com/IRT-Open-Source/libbw64/actions?workflow=macOS)
+[![](https://github.com/IRT-Open-Source/libbw64/workflows/Windows/badge.svg)](https://github.com/IRT-Open-Source/libbw64/actions?workflow=Windows)
 [![Documentation Status](https://readthedocs.org/projects/libbw64/badge/?version=latest)](https://libbw64.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/IRT-Open-Source/libbw64/branch/master/graph/badge.svg)](https://codecov.io/gh/IRT-Open-Source/libbw64)
 
