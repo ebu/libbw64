@@ -25,6 +25,10 @@ namespace bw64 {
     template <typename T>
     void readValue(std::istream& stream, T& dest) {
       stream.read(reinterpret_cast<char*>(&dest), sizeof(dest));
+      if (stream.eof())
+        throw std::runtime_error("file ended while reading value");
+      if (!stream.good())
+        throw std::runtime_error("file error while reading value");
     }
 
     /// @brief Write a value to a stream
