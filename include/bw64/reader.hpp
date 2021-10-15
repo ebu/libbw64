@@ -327,7 +327,6 @@ namespace bw64 {
     void parseChunkHeaders() {
       while (fileStream_.peek() != EOF) {
         auto chunkHeader = parseHeader();
-        chunkHeader.size = getChunkSize64(chunkHeader.id, chunkHeader.size);
         chunkHeaders_.push_back(chunkHeader);
         if (chunkHeader.size % 2 == 0) {
           fileStream_.seekg(chunkHeader.size, std::ios::cur);
