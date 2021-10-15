@@ -325,15 +325,32 @@ namespace bw64 {
     }
 
     void parseChunkHeaders() {
-      while (fileStream_.peek() != EOF) {
+      // get the absolute end of the file
+      const std::streamoff start = fileStream_.tellg();
+      fileStream_.seekg(0, std::ios::end);
+      const std::streamoff end = fileStream_.tellg();
+      fileStream_.seekg(start, std::ios::beg);
+
+      const std::streamoff header_size = 8;
+
+      while (fileStream_.tellg() + header_size <= end) {
         auto chunkHeader = parseHeader();
+
+        // determine chunk size, skipping a padding byte
+        std::streamoff chunk_size =
+            utils::safeCast<std::streamoff>(chunkHeader.size);
+        if (chunk_size % 2 != 0)
+          chunk_size = utils::safeAdd<std::streamoff>(chunk_size, 1);
+
+        std::streamoff chunk_end =
+            utils::safeAdd<std::streamoff>(fileStream_.tellg(), chunk_size);
+
+        if (chunk_end > end)
+          throw std::runtime_error("chunk ends after end of file");
+
+        fileStream_.seekg(chunk_size, std::ios::cur);
+
         chunkHeaders_.push_back(chunkHeader);
-        if (chunkHeader.size % 2 == 0) {
-          fileStream_.seekg(chunkHeader.size, std::ios::cur);
-        } else {
-          // skip padding byte
-          fileStream_.seekg(chunkHeader.size + 1, std::ios::cur);
-        }
       }
     }
 
