@@ -349,6 +349,8 @@ namespace bw64 {
           throw std::runtime_error("chunk ends after end of file");
 
         fileStream_.seekg(chunk_size, std::ios::cur);
+        if (!fileStream_.good())
+          throw std::runtime_error("file error while seeking past chunk");
 
         chunkHeaders_.push_back(chunkHeader);
       }
