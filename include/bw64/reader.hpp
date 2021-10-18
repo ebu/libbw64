@@ -245,8 +245,14 @@ namespace bw64 {
       if (tell() + frames > numberOfFrames()) {
         frames = numberOfFrames() - tell();
       }
+
       rawDataBuffer_.resize(frames * blockAlignment());
       fileStream_.read(&rawDataBuffer_[0], frames * blockAlignment());
+      if (fileStream_.eof())
+        throw std::runtime_error("file ended while reading frames");
+      if (!fileStream_.good())
+        throw std::runtime_error("file error while reading frames");
+
       utils::decodePcmSamples(&rawDataBuffer_[0], outBuffer,
                               frames * channels(), bitDepth());
       return frames;
