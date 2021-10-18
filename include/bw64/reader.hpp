@@ -204,31 +204,33 @@ namespace bw64 {
      * @brief Seek a frame position in the DataChunk
      */
     void seek(int32_t offset, std::ios_base::seekdir way = std::ios::beg) {
-      const int64_t frameOffset =
-          offset * static_cast<int64_t>(formatChunk()->blockAlignment());
-      const int64_t chunkPosition =
-          getChunkHeader(utils::fourCC("data")).position + 8;
-      int64_t dataChunkOffset = 0;
+      // where to seek relative to according to way
+      int64_t startFrame = 0;
       if (way == std::ios::cur) {
-        dataChunkOffset = fileStream_.tellg();
+        startFrame = tell();
       } else if (way == std::ios::beg) {
-        dataChunkOffset = chunkPosition;
+        startFrame = 0;
       } else if (way == std::ios::end) {
-        dataChunkOffset = chunkPosition + dataChunk()->size();
+        startFrame = numberOfFrames();
       }
-      fileStream_.clear();
-      if (frameOffset < 0 && dataChunkOffset < -frameOffset) {
-        fileStream_.seekg(0);
-      } else {
-        fileStream_.seekg(dataChunkOffset + frameOffset);
-      }
-      const int64_t fileStreamPos = fileStream_.tellg();
-      if (fileStreamPos < chunkPosition) {
-        fileStream_.seekg(chunkPosition);
-      } else if (fileStreamPos >
-                 chunkPosition + static_cast<int64_t>(dataChunk()->size())) {
-        fileStream_.seekg(chunkPosition + dataChunk()->size());
-      }
+
+      // requested frame number, clamped to a frame within the data chunk
+      int64_t frame = startFrame + offset;
+      if (frame < 0)
+        frame = 0;
+      else if (frame > numberOfFrames())
+        frame = numberOfFrames();
+
+      // the position in the file of the frame
+      const int64_t dataStartPos =
+          getChunkHeader(utils::fourCC("data")).position + 8;
+      const int64_t framePos =
+          dataStartPos + frame * static_cast<int64_t>(blockAlignment());
+
+      fileStream_.seekg(framePos);
+
+      if (!fileStream_.good())
+        throw std::runtime_error("file error while seeking");
     }
 
     /**
