@@ -75,6 +75,9 @@ namespace bw64 {
       sampleRate_ = fmtChunk->sampleRate();
       bitsPerSample_ = fmtChunk->bitsPerSample();
 
+      if (!dataChunk())
+        throw std::runtime_error("mandatory data chunk not found");
+
       seek(0);
     }
 
