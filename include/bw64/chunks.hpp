@@ -138,6 +138,10 @@ namespace bw64 {
         errorString << "bitDepth not supported: " << bitsPerSample_;
         throw std::runtime_error(errorString.str());
       }
+      if (static_cast<int32_t>(channels) * bitDepth / 8 > 0xffff) {
+        throw std::runtime_error(
+            "channelCount and bitsPerSample would overflow blockAlignment");
+      }
     }
 
     uint32_t id() const override { return utils::fourCC("fmt "); }
@@ -153,7 +157,8 @@ namespace bw64 {
     uint32_t bytesPerSecond() const { return sampleRate() * blockAlignment(); }
     /// @brief BlockAlignment getter
     uint16_t blockAlignment() const {
-      return channelCount() * bitsPerSample() / 8;
+      return utils::safeCast<uint16_t>(static_cast<uint32_t>(channelCount()) *
+                                       bitsPerSample() / 8);
     }
     /// @brief BitsPerSample getter
     uint16_t bitsPerSample() const { return bitsPerSample_; }

@@ -103,7 +103,10 @@ namespace bw64 {
       return dataChunk()->size() / blockAlignment();
     }
     /// @brief Get block alignment
-    uint16_t blockAlignment() const { return channels() * bitDepth() / 8; }
+    uint16_t blockAlignment() const {
+      return utils::safeCast<uint16_t>(static_cast<uint32_t>(channels()) *
+                                       bitDepth() / 8);
+    }
 
     template <typename ChunkType>
     std::vector<std::shared_ptr<ChunkType>> chunksWithId(
