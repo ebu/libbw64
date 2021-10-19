@@ -130,6 +130,8 @@ namespace bw64 {
     utils::readValue(stream, trackRef);
     utils::readValue(stream, packRef);
     stream.seekg(1, std::ios::cur);  // skip padding
+    if (!stream.good())
+      throw std::runtime_error("file error while seeking past audioId padding");
 
     return AudioId(trackIndex, std::string(uid, 12), std::string(trackRef, 14),
                    std::string(packRef, 11));
@@ -233,6 +235,10 @@ namespace bw64 {
                                            ChunkHeader header) {
     stream.clear();
     stream.seekg(header.position + 8u);
+    if (!stream.good())
+      throw std::runtime_error(
+          "file error while seeking past chunk header chunk");
+
     if (header.id == utils::fourCC("ds64")) {
       return parseDataSize64Chunk(stream, header.id, header.size);
     } else if (header.id == utils::fourCC("fmt ")) {
