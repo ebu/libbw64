@@ -107,6 +107,18 @@ TEST_CASE("format_info_chunk") {
     REQUIRE(formatChunkReread->sampleRate() == 48000);
     REQUIRE(formatChunkReread->bitsPerSample() == 24);
   }
+  // blockAlignment error
+  {
+    REQUIRE_THROWS_WITH(
+        FormatInfoChunk(0xffff, 48000, 24),
+        "channelCount and bitsPerSample would overflow blockAlignment");
+  }
+  // bytesPerSecond error
+  {
+    REQUIRE_THROWS_WITH(FormatInfoChunk(0x1000, 0xffffffff, 16),
+                        "sampleRate, channelCount and bitsPerSample would "
+                        "overflow bytesPerSecond");
+  }
 }
 
 TEST_CASE("chna_chunk") {
