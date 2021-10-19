@@ -142,6 +142,11 @@ namespace bw64 {
         throw std::runtime_error(
             "channelCount and bitsPerSample would overflow blockAlignment");
       }
+      if (static_cast<uint64_t>(sampleRate) * blockAlignment() > 0xffffffff) {
+        throw std::runtime_error(
+            "sampleRate, channelCount and bitsPerSample would overflow "
+            "bytesPerSecond");
+      }
     }
 
     uint32_t id() const override { return utils::fourCC("fmt "); }
@@ -154,7 +159,10 @@ namespace bw64 {
     /// @brief SampleRate getter
     uint32_t sampleRate() const { return sampleRate_; }
     /// @brief BytesPerSecond getter
-    uint32_t bytesPerSecond() const { return sampleRate() * blockAlignment(); }
+    uint32_t bytesPerSecond() const {
+      return utils::safeCast<uint32_t>(static_cast<uint64_t>(sampleRate()) *
+                                       blockAlignment());
+    }
     /// @brief BlockAlignment getter
     uint16_t blockAlignment() const {
       return utils::safeCast<uint16_t>(static_cast<uint32_t>(channelCount()) *
