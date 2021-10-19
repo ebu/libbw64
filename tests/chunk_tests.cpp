@@ -31,9 +31,9 @@ TEST_CASE("format_info_chunk") {
         "\x00\x77\x01\x00"  // bytesPerSecond = 96000
         "\x02\x00\x10\x00"  // blockAlignment = 2; bitsPerSample = 16
         "\x00\x00\x00\x00";
-    std::istringstream formatChunkStream(std::string(formatChunkByteArray, 22));
+    std::istringstream formatChunkStream(std::string(formatChunkByteArray, 20));
     REQUIRE_THROWS_AS(
-        parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 22),
+        parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 20),
         std::runtime_error);
   }
   // illegal formatTag
@@ -119,7 +119,7 @@ TEST_CASE("chna_chunk") {
         "\x31\x41\x54\x5f\x30\x30\x30\x33\x31\x30\x30\x31\x5f\x30"  // AT_00031001_01
         "\x31\x41\x50\x5f\x30\x30\x30\x33\x31\x30\x30\x31"  // AP_00031001
         "\x00";  // padding
-    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 52));
+    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 44));
     auto chnaChunk = parseChnaChunk(chnaChunkStream, utils::fourCC("chna"), 44);
     REQUIRE(chnaChunk->numTracks() == 1);
     REQUIRE(chnaChunk->numUids() == 1);
@@ -184,7 +184,7 @@ TEST_CASE("chna_chunk") {
         "\x31\x41\x54\x5f\x30\x30\x30\x33\x31\x30\x30\x31\x5f\x30"  // AT_00031001_01
         "\x31\x41\x50\x5f\x30\x30\x30\x33\x31\x30\x30\x31"  // AP_00031001
         "\x00";  // padding
-    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 52));
+    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 44));
     REQUIRE_THROWS_AS(
         parseChnaChunk(chnaChunkStream, utils::fourCC("chna"), 44),
         std::runtime_error);
@@ -197,7 +197,7 @@ TEST_CASE("chna_chunk") {
         "\x31\x41\x54\x5f\x30\x30\x30\x33\x31\x30\x30\x31\x5f\x30"  // AT_00031001_01
         "\x31\x41\x50\x5f\x30\x30\x30\x33\x31\x30\x30\x31"  // AP_00031001
         "\x00";  // padding
-    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 52));
+    std::istringstream chnaChunkStream(std::string(chnaChunkByteArray, 44));
     REQUIRE_THROWS_AS(
         parseChnaChunk(chnaChunkStream, utils::fourCC("chna"), 44),
         std::runtime_error);
