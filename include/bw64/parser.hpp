@@ -178,9 +178,15 @@ namespace bw64 {
       errorString << "chunkId != 'ds64'";
       throw std::runtime_error(errorString.str());
     }
-    if (size < 28u) {
+
+    // chunk consists of a fixed-size header, tableLength table entries, and
+    // optionally some junk
+    const uint64_t headerLength = 28u;
+    const uint64_t tableEntryLength = 12u;
+    if (size < headerLength) {
       throw std::runtime_error("illegal ds64 chunk size");
     }
+
     uint32_t tableLength;
     uint64_t bw64Size;
     uint64_t dataSize;
@@ -189,6 +195,11 @@ namespace bw64 {
     utils::readValue(stream, dataSize);
     utils::readValue(stream, dummySize);
     utils::readValue(stream, tableLength);
+
+    const uint64_t minSize = headerLength + tableLength * tableEntryLength;
+    if (size < minSize) {
+      throw std::runtime_error("ds64 chunk too short to hold table entries");
+    }
 
     std::map<uint32_t, uint64_t> table;
     for (uint32_t i = 0; i < tableLength; ++i) {
@@ -199,7 +210,9 @@ namespace bw64 {
       table[id] = size;
     }
     // skip junk data
-    stream.seekg(size - 28u - (12u * tableLength), std::ios::cur);
+    stream.seekg(size - minSize, std::ios::cur);
+    if (!stream.good())
+      throw std::runtime_error("file error while seeking past ds64 chunk");
 
     return std::make_shared<DataSize64Chunk>(bw64Size, dataSize, table);
   }
