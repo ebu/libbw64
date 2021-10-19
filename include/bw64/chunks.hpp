@@ -59,7 +59,7 @@ namespace bw64 {
     UnknownChunk(std::istream& stream, uint32_t id, uint64_t size) {
       chunkId_ = id;
       data_.resize(size);
-      stream.read(&data_[0], size);
+      utils::readChunk(stream, data_.data(), size);
     }
 
     uint32_t id() const override { return chunkId_; }

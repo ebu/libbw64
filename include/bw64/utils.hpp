@@ -32,6 +32,19 @@ namespace bw64 {
         throw std::runtime_error("file error while reading value");
     }
 
+    /// @brief Read size bytes from stream into dest
+    ///
+    /// Dest may be null if size == 0. EOF and stream errors are checked.
+    void readChunk(std::istream& stream, char* dest, size_t size) {
+      if (size) {
+        stream.read(dest, size);
+        if (stream.eof())
+          throw std::runtime_error("file ended while reading chunk");
+        if (!stream.good())
+          throw std::runtime_error("file error while reading chunk");
+      }
+    }
+
     /// @brief Write a value to a stream
     template <typename T>
     void writeValue(std::ostream& stream, const T& src) {

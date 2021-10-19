@@ -112,7 +112,9 @@ namespace bw64 {
     }
     std::string data;
     data.resize(size);
-    stream.read(&data[0], size);
+    // since c++11, std::string[0] returns a valid reference to a null byte for
+    // size==0
+    utils::readChunk(stream, &data[0], size);
     return std::make_shared<AxmlChunk>(data);
   }
 
