@@ -1,0 +1,58 @@
+name: Build
+on: [workflow_dispatch, pull_request]
+
+jobs:
+  build:
+    name: '${{ matrix.os }} shared=${{ matrix.shared }} ${{ matrix.build_type }}'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        shared: [true, false]
+        build_type: [Release]
+        include:
+          - os: windows-latest
+            triplet: x64-windows
+          - os: macos-latest
+            triplet: x64-osx
+          - os: ubuntu-latest
+            triplet: x64-linux
+
+          - os: ubuntu-latest
+            shared: true
+            build_type: Coverage
+    steps:
+      # checkout to workspace
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Get CMake and ninja
+        uses: lukka/get-cmake@v3.20.1
+
+      - name: 'Build with CMake and Ninja'
+        uses: lukka/run-cmake@v3
+        with:
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          useVcpkgToolchainFile: true
+          buildDirectory: '${{ runner.workspace }}/b/ninja'
+          cmakeAppendedArgs: >-
+            -GNinja
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DBUILD_SHARED_LIBS=${{ matrix.shared }}
+
+      - name: Add library directory to PATH for Tests
+        if: matrix.os == 'windows-latest'
+        run: 'echo "${{ runner.workspace }}/b/ninja/src" >> $GITHUB_PATH'
+        shell: bash
+
+      - name: 'Run tests'
+        run: ctest . --output-on-failure
+        working-directory: '${{ runner.workspace }}/b/ninja'
+
+      - uses: codecov/codecov-action@v1
+        if: matrix.build_type == 'Coverage'
+        with:
+          root_dir: '${{ github.workspace }}'
+          working-directory: '${{ runner.workspace }}/b/ninja'
