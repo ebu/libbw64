@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+This version fixes a number of buffer overruns, integer overflows, and uses of uninitialised data which may be triggered by reading malformed files; all users are advised to upgrade.
+
 ### Added
 
 - library can now easier be used as a CMake subproject
