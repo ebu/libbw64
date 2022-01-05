@@ -1,3 +1,6 @@
+#ifdef _WIN32
+#include "windows.h"  // This is to trigger max / std::numeric_limits::max conflict
+#endif
 #include <catch2/catch.hpp>
 #include "bw64/bw64.hpp"
 
