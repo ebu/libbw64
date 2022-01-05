@@ -165,9 +165,14 @@ namespace bw64 {
     /// check x against the maximum value that To can hold
     template <typename To, typename From>
     void checkUpper(From x) {
+      // additional parenthesis around numeric_limits are for preventing
+      // conflict with max(a,b) macro on windows without requiring user to
+      // define NOMINMAX
+
       // only need to do this check if From can hold values bigger than To
-      if (std::numeric_limits<From>::max() > std::numeric_limits<To>::max()) {
-        if (x > static_cast<From>(std::numeric_limits<To>::max()))
+      if ((std::numeric_limits<From>::max)() >
+          (std::numeric_limits<To>::max)()) {
+        if (x > static_cast<From>((std::numeric_limits<To>::max)()))
           throw std::runtime_error("overflow");
       }
     }
@@ -182,10 +187,10 @@ namespace bw64 {
       //
       // convert limits to signed, otherwise this comparison can be promoted to
       // unsigned
-      if (static_cast<FromS>(std::numeric_limits<From>::min()) <
-          static_cast<ToS>(std::numeric_limits<To>::min())) {
+      if (static_cast<FromS>((std::numeric_limits<From>::min)()) <
+          static_cast<ToS>((std::numeric_limits<To>::min)())) {
         // from is signed, to maybe unsigned
-        if (x < static_cast<FromS>(std::numeric_limits<To>::min()))
+        if (x < static_cast<FromS>((std::numeric_limits<To>::min)()))
           throw std::runtime_error("underflow");
       }
     }
@@ -203,8 +208,8 @@ namespace bw64 {
     /// representable by T; use safeCast to make sure
     template <typename T>
     T safeAdd(T x, T y) {
-      if (((y > 0) && (x > (std::numeric_limits<T>::max() - y))) ||
-          ((y < 0) && (x < (std::numeric_limits<T>::min() - y))))
+      if (((y > 0) && (x > ((std::numeric_limits<T>::max)() - y))) ||
+          ((y < 0) && (x < ((std::numeric_limits<T>::min)() - y))))
         throw std::runtime_error(y > 0 ? "overflow" : "underflow");
       return x + y;
     }
