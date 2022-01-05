@@ -199,9 +199,9 @@ TEST_CASE("write_chunk_without_padding") {
 
 template <typename T>
 void checkSameType() {
-  CHECK_NOTHROW(utils::safeCast<T>(std::numeric_limits<T>::max()));
+  CHECK_NOTHROW(utils::safeCast<T>((std::numeric_limits<T>::max)()));
   CHECK_NOTHROW(utils::safeCast<T>(static_cast<T>(0)));
-  CHECK_NOTHROW(utils::safeCast<T>(std::numeric_limits<T>::min()));
+  CHECK_NOTHROW(utils::safeCast<T>((std::numeric_limits<T>::min)()));
 }
 
 // when positive range of U is greater than T
@@ -209,15 +209,15 @@ template <typename T, typename U>
 void checkLargerTypePositive() {
   CHECK_NOTHROW(utils::safeCast<T>(static_cast<U>(0)));
   CHECK_NOTHROW(
-      utils::safeCast<T>(static_cast<U>(std::numeric_limits<T>::max())));
+      utils::safeCast<T>(static_cast<U>((std::numeric_limits<T>::max)())));
   CHECK_THROWS_WITH(
-      utils::safeCast<T>(static_cast<U>(std::numeric_limits<T>::max()) + 1),
+      utils::safeCast<T>(static_cast<U>((std::numeric_limits<T>::max)()) + 1),
       "overflow");
-  CHECK_THROWS_WITH(utils::safeCast<T>(std::numeric_limits<U>::max()),
+  CHECK_THROWS_WITH(utils::safeCast<T>((std::numeric_limits<U>::max)()),
                     "overflow");
 
   CHECK_NOTHROW(utils::safeCast<U>(static_cast<T>(0)));
-  CHECK_NOTHROW(utils::safeCast<U>(std::numeric_limits<T>::max()));
+  CHECK_NOTHROW(utils::safeCast<U>((std::numeric_limits<T>::max)()));
 }
 
 // when negative range of U is greater than T
@@ -225,15 +225,15 @@ template <typename T, typename U>
 void checkLargerTypeNegative() {
   CHECK_NOTHROW(utils::safeCast<T>(static_cast<U>(0)));
   CHECK_NOTHROW(
-      utils::safeCast<T>(static_cast<U>(std::numeric_limits<T>::min())));
+      utils::safeCast<T>(static_cast<U>((std::numeric_limits<T>::min)())));
   CHECK_THROWS_WITH(
-      utils::safeCast<T>(static_cast<U>(std::numeric_limits<T>::min()) - 1),
+      utils::safeCast<T>(static_cast<U>((std::numeric_limits<T>::min)()) - 1),
       "underflow");
-  CHECK_THROWS_WITH(utils::safeCast<T>(std::numeric_limits<U>::min()),
+  CHECK_THROWS_WITH(utils::safeCast<T>((std::numeric_limits<U>::min)()),
                     "underflow");
 
   CHECK_NOTHROW(utils::safeCast<U>(static_cast<T>(0)));
-  CHECK_NOTHROW(utils::safeCast<U>(std::numeric_limits<T>::min()));
+  CHECK_NOTHROW(utils::safeCast<U>((std::numeric_limits<T>::min)()));
 }
 
 TEST_CASE("safe cast") {
@@ -258,40 +258,40 @@ TEST_CASE("safe cast") {
 template <typename T>
 void checkAddPositive() {
   CHECK_NOTHROW(utils::safeAdd<T>(0, 0));
-  CHECK_NOTHROW(utils::safeAdd<T>(0, std::numeric_limits<T>::max()));
-  CHECK_NOTHROW(utils::safeAdd<T>(std::numeric_limits<T>::max(), 0));
+  CHECK_NOTHROW(utils::safeAdd<T>(0, (std::numeric_limits<T>::max)()));
+  CHECK_NOTHROW(utils::safeAdd<T>((std::numeric_limits<T>::max)(), 0));
 
-  CHECK_NOTHROW(utils::safeAdd<T>(1, std::numeric_limits<T>::max() - 1));
-  CHECK_NOTHROW(utils::safeAdd<T>(std::numeric_limits<T>::max() - 1, 1));
+  CHECK_NOTHROW(utils::safeAdd<T>(1, (std::numeric_limits<T>::max)() - 1));
+  CHECK_NOTHROW(utils::safeAdd<T>((std::numeric_limits<T>::max)() - 1, 1));
 
-  CHECK_THROWS_WITH(utils::safeAdd<T>(1, std::numeric_limits<T>::max()),
+  CHECK_THROWS_WITH(utils::safeAdd<T>(1, (std::numeric_limits<T>::max)()),
                     "overflow");
-  CHECK_THROWS_WITH(utils::safeAdd<T>(std::numeric_limits<T>::max(), 1),
+  CHECK_THROWS_WITH(utils::safeAdd<T>((std::numeric_limits<T>::max)(), 1),
                     "overflow");
 
-  CHECK_THROWS_WITH(utils::safeAdd<T>(std::numeric_limits<T>::max(),
-                                      std::numeric_limits<T>::max()),
+  CHECK_THROWS_WITH(utils::safeAdd<T>((std::numeric_limits<T>::max)(),
+                                      (std::numeric_limits<T>::max)()),
                     "overflow");
 }
 
 template <typename T>
 void checkAddNegative() {
   CHECK_NOTHROW(utils::safeAdd<T>(0, 0));
-  CHECK_NOTHROW(utils::safeAdd<T>(0, std::numeric_limits<T>::min()));
-  CHECK_NOTHROW(utils::safeAdd<T>(std::numeric_limits<T>::min(), 0));
-  CHECK_NOTHROW(utils::safeAdd<T>(1, std::numeric_limits<T>::min()));
-  CHECK_NOTHROW(utils::safeAdd<T>(std::numeric_limits<T>::min(), 1));
+  CHECK_NOTHROW(utils::safeAdd<T>(0, (std::numeric_limits<T>::min)()));
+  CHECK_NOTHROW(utils::safeAdd<T>((std::numeric_limits<T>::min)(), 0));
+  CHECK_NOTHROW(utils::safeAdd<T>(1, (std::numeric_limits<T>::min)()));
+  CHECK_NOTHROW(utils::safeAdd<T>((std::numeric_limits<T>::min)(), 1));
 
-  CHECK_NOTHROW(utils::safeAdd<T>(-1, std::numeric_limits<T>::max()));
-  CHECK_NOTHROW(utils::safeAdd<T>(std::numeric_limits<T>::max(), -1));
+  CHECK_NOTHROW(utils::safeAdd<T>(-1, (std::numeric_limits<T>::max)()));
+  CHECK_NOTHROW(utils::safeAdd<T>((std::numeric_limits<T>::max)(), -1));
 
-  CHECK_THROWS_WITH(utils::safeAdd<T>(-1, std::numeric_limits<T>::min()),
+  CHECK_THROWS_WITH(utils::safeAdd<T>(-1, (std::numeric_limits<T>::min)()),
                     "underflow");
-  CHECK_THROWS_WITH(utils::safeAdd<T>(std::numeric_limits<T>::min(), -1),
+  CHECK_THROWS_WITH(utils::safeAdd<T>((std::numeric_limits<T>::min)(), -1),
                     "underflow");
 
-  CHECK_THROWS_WITH(utils::safeAdd<T>(std::numeric_limits<T>::min(),
-                                      std::numeric_limits<T>::min()),
+  CHECK_THROWS_WITH(utils::safeAdd<T>((std::numeric_limits<T>::min)(),
+                                      (std::numeric_limits<T>::min)()),
                     "underflow");
 }
 
