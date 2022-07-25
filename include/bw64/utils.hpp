@@ -75,6 +75,19 @@ namespace bw64 {
       }
     }
 
+    /// @brief Limit sample to [-1,+1]
+    template <typename T,
+              typename = std::enable_if<std::is_floating_point<T>::value>>
+    T clipSample(T value) {
+      if (value > 1.f) {
+        return 1.f;
+      }
+      if (value < -1.f) {
+        return -1.f;
+      }
+      return value;
+    }
+
     /// scale factor for converting between floats and ints
     template <typename T, int bits>
     constexpr T scaleFactor() {
@@ -131,7 +144,7 @@ namespace bw64 {
 
       constexpr T scale_inv = T{1} / scaleFactor<T, bits>();
 
-      return scale_inv * value;
+      return clipSample(scale_inv * value);
     }
 
     /// @brief Decode (integer) PCM samples as float from char array
@@ -156,19 +169,6 @@ namespace bw64 {
         errorString << "unsupported number of bits: " << bitsPerSample;
         throw std::runtime_error(errorString.str());
       }
-    }
-
-    /// @brief Limit sample to [-1,+1]
-    template <typename T,
-              typename = std::enable_if<std::is_floating_point<T>::value>>
-    T clipSample(T value) {
-      if (value > 1.f) {
-        return 1.f;
-      }
-      if (value < -1.f) {
-        return -1.f;
-      }
-      return value;
     }
 
     /// @brief Encode PCM samples from float array to char array
