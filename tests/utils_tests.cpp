@@ -175,6 +175,61 @@ TEST_CASE("encode_decode_pcm_samples_32bit") {
   REQUIRE(samples[4] == Approx(decodedSamples[4]).epsilon(1e-6));
 }
 
+/// check that a given PCM sample value when decoded then encoded results in
+/// the same value
+template <int bytes, typename T>
+void checkDecodeEncodeOne(uint64_t value) {
+  constexpr int bits = 8 * bytes;
+
+  char sample[bytes];
+  for (size_t c = 0; c < bytes; c++) sample[c] = (value >> (c * 8)) & 0xff;
+
+  T decoded;
+  utils::decodePcmSamples(sample, &decoded, 1, bits);
+  char encoded[bytes];
+  utils::encodePcmSamples(&decoded, encoded, 1, bits);
+
+  // current scale doesn't pass through a value of -1
+  if (value == ((uint64_t)1 << (bits - 1))) return;
+
+  uint64_t encoded_value = 0;
+  for (size_t c = 0; c < bytes; c++)
+    encoded_value |= static_cast<uint64_t>(encoded[c] & 0xff) << (c * 8);
+  CHECK(value == encoded_value);
+}
+
+// check all pcm values with checkDecodeEncodeOne
+template <int bytes, typename T>
+void checkDecodeEncodeAll() {
+  constexpr int bits = 8 * bytes;
+
+  for (uint64_t value = 0; value < (1 << bits); value++)
+    checkDecodeEncodeOne<bytes, T>(value);
+}
+
+// check pcm values around 0, -1 and +1 with checkDecodeEncodeOne
+template <int bytes, typename T>
+void checkDecodeEncodeAroundEdges(uint64_t n) {
+  constexpr int bits = 8 * bytes;
+
+  for (uint64_t value = 0; value < n; value++) {
+    // up from zero
+    checkDecodeEncodeOne<bytes, T>(value);
+    // down from -1
+    checkDecodeEncodeOne<bytes, T>((((uint64_t)1 << bits) - 1) - value);
+    // up from -MAX
+    checkDecodeEncodeOne<bytes, T>(((uint64_t)1 << (bits - 1)) + value);
+    // down from +MAX
+    checkDecodeEncodeOne<bytes, T>((((uint64_t)1 << (bits - 1)) - 1) - value);
+  }
+}
+
+TEST_CASE("decode_encode_passthrough") {
+  SECTION("16 bit float") { checkDecodeEncodeAll<2, float>(); };
+  SECTION("24 bit float") { checkDecodeEncodeAroundEdges<3, float>(1000); }
+  SECTION("32 bit double") { checkDecodeEncodeAroundEdges<4, double>(1000); }
+}
+
 TEST_CASE("write_chunk_with_padding") {
   auto axmlChunk = std::make_shared<AxmlChunk>("123456789");
   std::ostringstream stream;
