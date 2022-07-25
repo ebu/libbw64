@@ -4,6 +4,7 @@
  * Collection of helper functions.
  */
 #pragma once
+#include <cmath>
 #include <sstream>
 #include <stdexcept>
 #include <limits>
@@ -101,7 +102,7 @@ namespace bw64 {
       else if (value <= static_cast<T>(minval))
         value_int = minval;
       else
-        value_int = static_cast<IntT>(value);
+        value_int = static_cast<IntT>(std::lrint(value));
 
       for (size_t i = 0; i < bytes; i++)
         buffer[i] = (value_int >> (8 * i)) & 0xff;

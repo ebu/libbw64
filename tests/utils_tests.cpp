@@ -90,8 +90,8 @@ TEST_CASE("encode_pcm_samples_16bit") {
       "\x00\x00"
       "\xff\x7f"
       "\x01\x80"
-      "\xff\x3f"
-      "\x01\xc0";
+      "\x00\x40"
+      "\x00\xc0";
   char encoded16bit[10];
 
   const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
@@ -107,8 +107,8 @@ TEST_CASE("encode_pcm_samples_24bit") {
       "\x00\x00\x00"
       "\xff\xff\x7f"
       "\x01\x00\x80"
-      "\xff\xff\x3f"
-      "\x01\x00\xc0";
+      "\x00\x00\x40"
+      "\x00\x00\xc0";
   char encoded24bit[15];
 
   const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
@@ -124,8 +124,8 @@ TEST_CASE("encode_pcm_samples_32bit") {
       "\x00\x00\x00\x00"
       "\xff\xff\xff\x7f"
       "\x01\x00\x00\x80"
-      "\xff\xff\xff\x3f"
-      "\x01\x00\x00\xc0";
+      "\x00\x00\x00\x40"
+      "\x00\x00\x00\xc0";
   char encoded32bit[20];
 
   const float samples[] = {0.f, 1.f, -1.f, 0.5f, -0.5f};
