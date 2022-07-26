@@ -89,7 +89,7 @@ TEST_CASE("encode_pcm_samples_16bit") {
   const char* encodedSamples =
       "\x00\x00"
       "\xff\x7f"
-      "\x01\x80"
+      "\x00\x80"
       "\x00\x40"
       "\x00\xc0";
   char encoded16bit[10];
@@ -106,7 +106,7 @@ TEST_CASE("encode_pcm_samples_24bit") {
   const char* encodedSamples =
       "\x00\x00\x00"
       "\xff\xff\x7f"
-      "\x01\x00\x80"
+      "\x00\x00\x80"
       "\x00\x00\x40"
       "\x00\x00\xc0";
   char encoded24bit[15];
@@ -123,7 +123,7 @@ TEST_CASE("encode_pcm_samples_32bit") {
   const char* encodedSamples =
       "\x00\x00\x00\x00"
       "\xff\xff\xff\x7f"
-      "\x01\x00\x00\x80"
+      "\x00\x00\x00\x80"
       "\x00\x00\x00\x40"
       "\x00\x00\x00\xc0";
   char encoded32bit[20];
@@ -188,9 +188,6 @@ void checkDecodeEncodeOne(uint64_t value) {
   utils::decodePcmSamples(sample, &decoded, 1, bits);
   char encoded[bytes];
   utils::encodePcmSamples(&decoded, encoded, 1, bits);
-
-  // current scale doesn't pass through a value of -1
-  if (value == ((uint64_t)1 << (bits - 1))) return;
 
   uint64_t encoded_value = 0;
   for (size_t c = 0; c < bytes; c++)

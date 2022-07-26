@@ -91,7 +91,7 @@ namespace bw64 {
     /// scale factor for converting between floats and ints
     template <typename T, int bits>
     constexpr T scaleFactor() {
-      return static_cast<T>((static_cast<uint32_t>(1) << (bits - 1)) - 1);
+      return static_cast<T>(static_cast<uint32_t>(1) << (bits - 1));
     }
 
     /// encode one sample to PCM
@@ -106,7 +106,7 @@ namespace bw64 {
 
       constexpr IntT maxval =
           static_cast<IntT>((UnsignedT{1} << (bits - 1)) - 1);
-      constexpr IntT minval = -maxval;
+      constexpr IntT minval = -maxval - 1;
 
       // clip or convert to int
       IntT value_int;
