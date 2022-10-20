@@ -204,7 +204,7 @@ namespace bw64 {
       fileStream_.seekp(0);
       if (isBw64File()) {
         utils::writeValue(fileStream_, utils::fourCC("BW64"));
-        utils::writeValue(fileStream_, INT32_MAX);
+        utils::writeValue(fileStream_, UINT32_MAX);
         overwriteJunkWithDs64Chunk();
       } else {
         utils::writeValue(fileStream_, utils::fourCC("RIFF"));
