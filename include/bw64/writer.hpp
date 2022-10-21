@@ -2,6 +2,7 @@
 #pragma once
 #include <algorithm>
 #include <fstream>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -204,7 +205,7 @@ namespace bw64 {
       fileStream_.seekp(0);
       if (isBw64File()) {
         utils::writeValue(fileStream_, utils::fourCC("BW64"));
-        utils::writeValue(fileStream_, INT32_MAX);
+        utils::writeValue(fileStream_, (std::numeric_limits<uint32_t>::max)());
         overwriteJunkWithDs64Chunk();
       } else {
         utils::writeValue(fileStream_, utils::fourCC("RIFF"));
