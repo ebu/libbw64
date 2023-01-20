@@ -200,13 +200,18 @@ namespace bw64 {
     /// check x against the maximum value that To can hold
     template <typename To, typename From>
     void checkUpper(From x) {
+      using FromUS = typename std::make_unsigned<From>::type;
+      using ToUS = typename std::make_unsigned<To>::type;
       // additional parenthesis around numeric_limits are for preventing
       // conflict with max(a,b) macro on windows without requiring user to
       // define NOMINMAX
 
       // only need to do this check if From can hold values bigger than To
-      if ((std::numeric_limits<From>::max)() >
-          (std::numeric_limits<To>::max)()) {
+      //
+      // regular promotion works fine here, but MSVC complains about
+      // signed/unsigned comparison
+      if (static_cast<FromUS>((std::numeric_limits<From>::max)()) >
+          static_cast<ToUS>((std::numeric_limits<To>::max)())) {
         if (x > static_cast<From>((std::numeric_limits<To>::max)()))
           throw std::runtime_error("overflow");
       }
