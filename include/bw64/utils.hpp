@@ -212,23 +212,39 @@ namespace bw64 {
       }
     }
 
-    /// check x against the minimum value that To can hold
+    /// when converting x from From to To, do we need to check that x is not
+    /// below the lower bound of To?
+    ///
+    /// templated to avoid erronous warnings on MSVC, and not use enable_if
     template <typename To, typename From>
-    void checkLower(From x) {
+    struct NeedToCheckLower {
       using FromS = typename std::make_signed<From>::type;
       using ToS = typename std::make_signed<To>::type;
 
-      // only need to do this check if From can hold values smaller than To
-      //
       // convert limits to signed, otherwise this comparison can be promoted to
       // unsigned
-      if (static_cast<FromS>((std::numeric_limits<From>::min)()) <
-          static_cast<ToS>((std::numeric_limits<To>::min)())) {
-        // from is signed, to maybe unsigned
-        if (x < static_cast<FromS>((std::numeric_limits<To>::min)()))
-          throw std::runtime_error("underflow");
-      }
+      static constexpr bool value =
+          static_cast<FromS>((std::numeric_limits<From>::min)()) <
+          static_cast<ToS>((std::numeric_limits<To>::min)());
+    };
+
+    /// check x against the minimum value that To can hold
+    template <typename To, typename From>
+    typename std::enable_if<NeedToCheckLower<To, From>::value>::type checkLower(
+        From x) {
+      using FromS = typename std::make_signed<From>::type;
+
+      // - From is signed
+      // - To may be unsigned
+      //   - if it's unsigned, this is ok because the lower limit of to is 0
+      //   - if it's signed, it's ok because From is larger than To
+      if (x < static_cast<FromS>((std::numeric_limits<To>::min)()))
+        throw std::runtime_error("underflow");
     }
+
+    template <typename To, typename From>
+    typename std::enable_if<!NeedToCheckLower<To, From>::value>::type
+    checkLower(From) {}
 
     /// convert signed or unsigned integer x to To, checking for overflow and
     /// underflow
