@@ -28,7 +28,7 @@ jobs:
           submodules: recursive
 
       - name: Get CMake and ninja
-        uses: lukka/get-cmake@v3.20.1
+        uses: lukka/get-cmake@v3.25.1
       
       - name: Setup msvc dev command prompt on Windows
         uses: ilammy/msvc-dev-cmd@v1
