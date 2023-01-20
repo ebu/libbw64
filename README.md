@@ -16,7 +16,7 @@ it already contains necessary extensions to support files which are bigger than
 it with the audio tracks in the file. To do that a BW64 file specifies two new
 RIFF chunks – the `axml` chunk and the `chna` chunk. To parse, create, modify
 and write the ADM metadata in the `axml` chunk you may use the
-[`libadm`](https://github.com/irt-open-source/libadm) library.
+[`libadm`](https://github.com/ebu/libadm) library.
 
 [Read the documentation](https://libbw64.readthedocs.io/en/latest/) to get
 started.
@@ -32,10 +32,10 @@ started.
 
 ### macOS
 On macOS you can use homebrew to install the library. You just have to add the
-IRT’s NGA homebrew tap and can then use the usual install command.
+EBU NGA homebrew tap and can then use the usual install command.
 
 ```
-brew tap irt-open-source/homebrew-nga
+brew tap ebu/homebrew-nga
 brew install libbw64
 ```
 
@@ -44,7 +44,7 @@ To manually install the library you have to clone the git repository and then
 use the CMake (version 3.5 or later) build system to build and install it.
 
 ```
-git clone git@github.com:irt-open-source/libbw64.git
+git clone git@github.com:ebu/libbw64.git
 cd libbw64
 mkdir build && cd build
 cmake ..
