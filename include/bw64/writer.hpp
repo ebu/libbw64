@@ -287,7 +287,7 @@ namespace bw64 {
     /**
      * @brief Write frames to dataChunk
      *
-     * @param[out] inBuffer Buffer to write the samples to
+     * @param[out] inBuffer Buffer to read samples from
      * @param[in]  frames   Number of frames to write
      *
      * @returns number of frames written
