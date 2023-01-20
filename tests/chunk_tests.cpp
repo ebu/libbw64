@@ -214,6 +214,13 @@ TEST_CASE("chna_chunk") {
         parseChnaChunk(chnaChunkStream, utils::fourCC("chna"), 44),
         std::runtime_error);
   }
+  {  // zero trackIndex throws when writing
+    std::stringstream stream;
+    auto chnaChunk = std::make_shared<ChnaChunk>();
+    chnaChunk->addAudioId(
+        AudioId(0, "ATU_00000001", "AT_00031001_01", "AP_00031001"));
+    REQUIRE_THROWS_AS(chnaChunk->write(stream), std::runtime_error);
+  }
 }
 
 TEST_CASE("ds64_chunk") {

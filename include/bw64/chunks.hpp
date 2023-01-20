@@ -339,6 +339,10 @@ namespace bw64 {
      * @brief Write the AudioId to a stream
      */
     void write(std::ostream& stream) const {
+      if (trackIndex_ == 0)
+        throw std::runtime_error(
+            "AudioId trackIndex is 1-based, so must not be zero");
+
       utils::writeValue(stream, trackIndex());
       utils::writeValue(stream, uid_);
       utils::writeValue(stream, trackRef_);
