@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <limits>
+#include <memory>
 #include <type_traits>
 #include <stdint.h>
 #include "chunks.hpp"
