@@ -210,6 +210,8 @@ namespace bw64 {
      * @brief Seek a frame position in the DataChunk
      */
     void seek(int32_t offset, std::ios_base::seekdir way = std::ios::beg) {
+      auto numberOfFramesInt = utils::safeCast<int64_t>(numberOfFrames());
+
       // where to seek relative to according to way
       int64_t startFrame = 0;
       if (way == std::ios::cur) {
@@ -217,15 +219,15 @@ namespace bw64 {
       } else if (way == std::ios::beg) {
         startFrame = 0;
       } else if (way == std::ios::end) {
-        startFrame = numberOfFrames();
+        startFrame = numberOfFramesInt;
       }
 
       // requested frame number, clamped to a frame within the data chunk
       int64_t frame = startFrame + offset;
       if (frame < 0)
         frame = 0;
-      else if (frame > numberOfFrames())
-        frame = numberOfFrames();
+      else if (frame > numberOfFramesInt)
+        frame = numberOfFramesInt;
 
       // the position in the file of the frame
       const int64_t dataStartPos =
