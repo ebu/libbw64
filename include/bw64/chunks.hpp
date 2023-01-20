@@ -386,7 +386,9 @@ namespace bw64 {
       return static_cast<uint16_t>(trackIndices.size());
     }
     /// @brief NumUids getter
-    uint16_t numUids() const { return static_cast<uint16_t>(audioIds_.size()); }
+    uint16_t numUids() const {
+      return utils::safeCast<uint16_t>(audioIds_.size());
+    }
     /// @brief AudioIds getter
     std::vector<AudioId> audioIds() const { return audioIds_; }
     /// @brief Add AudioId to AudioId table
@@ -430,7 +432,7 @@ namespace bw64 {
     uint64_t dummySize() const { return dummySize_; }
     /// @brief TableLength getter
     uint32_t tableLength() const {
-      return static_cast<uint32_t>(table_.size());
+      return utils::safeCast<uint32_t>(table_.size());
     }
 
     /// @brief Bw64Size setter
