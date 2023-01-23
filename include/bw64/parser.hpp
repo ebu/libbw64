@@ -32,8 +32,8 @@ namespace bw64 {
       errorString << "chunkId != 'fmt '";
       throw std::runtime_error(errorString.str());
     }
-    if (size != 16 && size != 18 && size != 40) {
-      throw std::runtime_error("illegal 'fmt ' chunk size");
+    if (size < 16) {
+      throw std::runtime_error("'fmt ' chunk is too small");
     }
 
     uint16_t formatTag;
@@ -52,33 +52,43 @@ namespace bw64 {
     utils::readValue(stream, blockAlignment);
     utils::readValue(stream, bitsPerSample);
 
-    if (size > 16) {
+    if (size >= 18) {
       utils::readValue(stream, cbSize);
+
+      if (size != 18 + cbSize) {
+        throw std::runtime_error("fmt chunk is not as specified in cbSize");
+      }
     } else {
       cbSize = 0;
+
+      if (size != 16) {
+        throw std::runtime_error("fmt chunk without cbSize should be 16 bytes");
+      }
     }
-    if (size > 18 && cbSize > 0) {
+
+    if (formatTag == 1) {
+      if (cbSize != 0) {
+        throw std::runtime_error(
+            "WAVE_FORMAT_PCM fmt chunk should not have extra data");
+      }
+    } else if (formatTag == 0xfffe) {
+      if (cbSize != 22) {
+        std::stringstream errorString;
+        errorString << "WAVE_FORMAT_EXTENSIBLE fmt chunk must have 22 bytes of "
+                       "extra data, but has "
+                    << cbSize;
+        throw std::runtime_error(errorString.str());
+      }
+
       extraData = parseExtraData(stream);
-    }
 
-    if (cbSize != 0 && cbSize != 22) {
-      throw std::runtime_error("unsupported cbSize");
-    }
-
-    if (formatTag != 1 && formatTag != 0xfffe) {
+      if (extraData->subFormat() != 1) {
+        throw std::runtime_error("subformat unsupported");
+      }
+    } else {
       std::stringstream errorString;
       errorString << "format unsupported: " << formatTag;
       throw std::runtime_error(errorString.str());
-    }
-    if (formatTag == 0xfffe) {
-      if (!extraData) {
-        throw std::runtime_error(
-            "missing extra data for WAVE_FORMAT_EXTENSIBLE");
-      } else {
-        if (extraData->subFormat() != 1) {
-          throw std::runtime_error("subformat unsupported");
-        }
-      }
     }
 
     auto formatInfoChunk = std::make_shared<FormatInfoChunk>(
