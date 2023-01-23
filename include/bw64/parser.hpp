@@ -92,7 +92,7 @@ namespace bw64 {
     }
 
     auto formatInfoChunk = std::make_shared<FormatInfoChunk>(
-        channelCount, sampleRate, bitsPerSample, extraData);
+        channelCount, sampleRate, bitsPerSample, extraData, formatTag);
 
     if (formatInfoChunk->blockAlignment() != blockAlignment) {
       std::stringstream errorString;

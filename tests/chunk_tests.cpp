@@ -176,6 +176,21 @@ TEST_CASE("format_info_chunk_extradata") {
         std::string("\x00\x00\x00\x00\x00\x10\x80\x00\x00\xaa\x00\x38\x9b\x71",
                     14));
   }
+  SECTION("PCM with extradata") {
+    const char* formatChunkByteArray =
+        "\x01\x00\x01\x00"  // formatTag = 1; channelCount = 1
+        "\x80\xbb\x00\x00"  // sampleRate = 48000
+        "\x00\x77\x01\x00"  // bytesPerSecond = 96000
+        "\x02\x00\x10\x00"  // blockAlignment = 2; bitsPerSample = 16
+        "\x16\x00"  // cbSize = 22
+        "\x10\x00"  // validBitsPerSample = 16
+        "\x04\x00\x00\x00"  // dwChannelMask = SPEAKER_FRONT_CENTER
+        "\x01\x00\x00\x00\x00\x00\x00\x10\x80\x00\x00\xaa\x00\x38\x9b\x71";  // KSDATAFORMAT_SUBTYPE_PCM
+    std::istringstream formatChunkStream(std::string(formatChunkByteArray, 40));
+    REQUIRE_THROWS_AS(
+        parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 40),
+        std::runtime_error);
+  }
 }
 
 TEST_CASE("chna_chunk") {

@@ -29,7 +29,7 @@ TEST_CASE("read_rect_24bit") {
 
 TEST_CASE("read_rect_32bit") {
   auto bw64File = readFile("rect_32bit.wav");
-  REQUIRE(bw64File->formatTag() == 1u);
+  REQUIRE(bw64File->formatTag() == 0xfffeu);
   REQUIRE(bw64File->bitDepth() == 32u);
   REQUIRE(bw64File->sampleRate() == 44100u);
   REQUIRE(bw64File->channels() == 2u);

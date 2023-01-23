@@ -117,10 +117,12 @@ namespace bw64 {
      * @param sampleRate sample rate of the audio data
      * @param bitDepth bit depth used in file
      * @param extraData custom ExtraData (optional, nullptr if not custom)
+     * @param formatTag format tag, defaults to PCM
      */
     FormatInfoChunk(uint16_t channels, uint32_t sampleRate, uint32_t bitDepth,
-                    std::shared_ptr<ExtraData> extraData = nullptr) {
-      formatTag_ = 1;
+                    std::shared_ptr<ExtraData> extraData = nullptr,
+                    uint16_t formatTag = 1) {
+      formatTag_ = formatTag;
       channelCount_ = channels;
       sampleRate_ = sampleRate;
       bitsPerSample_ = bitDepth;
