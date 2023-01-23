@@ -14,10 +14,13 @@ This version fixes a number of buffer overruns, integer overflows, and uses of u
 - Renamed CMake library target name from `libbw64` to `bw64`
 - Renamed CMake option `UNIT_TESTS` to `BW64_UNIT_TESTS`
 - Renamed CMake option `EXAMPLES` to `BW64_EXAMPLES`
+- `FormatInfoChunk::formatTag` now matches the formatTag in the file, rather than always returning 1
+- fmt parsing is stricter -- the chunk size must match the use of cbSize, and the presence if extra data is checked against the formatTag
 
 ### Fixed
 
 - Fix sample rate parameter type in `writeFile()` and `BW64Writer` ctor to support 96k samplerates
+- fmt extra data is now written correctly
 
 ## 0.10.0 - (January 18, 2019)
 ### Added
