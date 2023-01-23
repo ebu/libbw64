@@ -189,7 +189,7 @@ namespace bw64 {
         utils::writeValue(stream, extraData()->validBitsPerSample());
         utils::writeValue(stream, extraData()->dwChannelMask());
         utils::writeValue(stream, extraData()->subFormat());
-        utils::writeValue(stream, extraData()->subFormatString());
+        stream << extraData()->subFormatString();
       }
     }
 
