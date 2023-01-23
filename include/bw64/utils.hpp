@@ -49,7 +49,10 @@ namespace bw64 {
     }
 
     /// @brief Write a value to a stream
-    template <typename T>
+    template <typename T,
+              typename std::enable_if<
+                  std::is_integral<typename std::remove_extent<T>::type>::value,
+                  int>::type = 0>
     void writeValue(std::ostream& stream, const T& src) {
       stream.write(reinterpret_cast<const char*>(&src), sizeof(src));
     }
