@@ -77,8 +77,8 @@ namespace bw64 {
     }
 
     /// @brief Limit sample to [-1,+1]
-    template <typename T,
-              typename = std::enable_if<std::is_floating_point<T>::value>>
+    template <typename T, typename std::enable_if<
+                              std::is_floating_point<T>::value, int>::type = 0>
     T clipSample(T value) {
       if (value > 1.f) {
         return 1.f;
@@ -97,7 +97,8 @@ namespace bw64 {
 
     /// encode one sample to PCM
     template <int bytes, typename IntT, typename T,
-              typename = std::enable_if<std::is_floating_point<T>::value>>
+              typename std::enable_if<std::is_floating_point<T>::value,
+                                      int>::type = 0>
     void encode(T value, char* buffer) {
       static_assert(sizeof(IntT) >= bytes, "IntT must be larger than bytes");
       constexpr int bits = bytes * 8;
@@ -124,7 +125,8 @@ namespace bw64 {
 
     /// decode one sample from PCM
     template <int bytes, typename IntT, typename T,
-              typename = std::enable_if<std::is_floating_point<T>::value>>
+              typename std::enable_if<std::is_floating_point<T>::value,
+                                      int>::type = 0>
     T decode(const char* buffer) {
       static_assert(sizeof(IntT) >= bytes, "IntT must be larger than bytes");
       constexpr int bits = bytes * 8;
@@ -149,8 +151,8 @@ namespace bw64 {
     }
 
     /// @brief Decode (integer) PCM samples as float from char array
-    template <typename T,
-              typename = std::enable_if<std::is_floating_point<T>::value>>
+    template <typename T, typename std::enable_if<
+                              std::is_floating_point<T>::value, int>::type = 0>
     void decodePcmSamples(const char* inBuffer, T* outBuffer,
                           uint64_t numberOfSamples, uint16_t bitsPerSample) {
       if (bitsPerSample == 16) {

@@ -292,8 +292,8 @@ namespace bw64 {
      *
      * @returns number of frames written
      */
-    template <typename T,
-              typename = std::enable_if<std::is_floating_point<T>::value>>
+    template <typename T, typename std::enable_if<
+                              std::is_floating_point<T>::value, int>::type = 0>
     uint64_t write(T* inBuffer, uint64_t frames) {
       uint64_t bytesWritten = frames * formatChunk()->blockAlignment();
       rawDataBuffer_.resize(bytesWritten);

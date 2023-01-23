@@ -249,8 +249,8 @@ namespace bw64 {
      *
      * @returns number of frames read
      */
-    template <typename T,
-              typename = std::enable_if<std::is_floating_point<T>::value>>
+    template <typename T, typename std::enable_if<
+                              std::is_floating_point<T>::value, int>::type = 0>
     uint64_t read(T* outBuffer, uint64_t frames) {
       if (tell() + frames > numberOfFrames()) {
         frames = numberOfFrames() - tell();
