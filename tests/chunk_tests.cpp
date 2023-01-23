@@ -175,6 +175,12 @@ TEST_CASE("format_info_chunk_extradata") {
         extraData->subFormatString() ==
         std::string("\x00\x00\x00\x00\x00\x10\x80\x00\x00\xaa\x00\x38\x9b\x71",
                     14));
+
+    SECTION("write") {
+      std::ostringstream written;
+      formatInfoChunk->write(written);
+      REQUIRE(formatChunkStream.str() == written.str());
+    }
   }
   SECTION("PCM with extradata") {
     const char* formatChunkByteArray =
