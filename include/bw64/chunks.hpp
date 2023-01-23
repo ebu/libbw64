@@ -185,6 +185,7 @@ namespace bw64 {
       utils::writeValue(stream, blockAlignment());
       utils::writeValue(stream, bitsPerSample());
       if (extraData()) {
+        utils::writeValue(stream, uint16_t{22});  // cbSize
         utils::writeValue(stream, extraData()->validBitsPerSample());
         utils::writeValue(stream, extraData()->dwChannelMask());
         utils::writeValue(stream, extraData()->subFormat());
