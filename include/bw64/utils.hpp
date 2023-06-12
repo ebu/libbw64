@@ -11,7 +11,6 @@
 #include <memory>
 #include <type_traits>
 #include <stdint.h>
-#include "chunks.hpp"
 
 namespace bw64 {
   namespace utils {
@@ -276,4 +275,28 @@ namespace bw64 {
       return x + y;
     }
   }  // namespace utils
+
+
+/**
+ * @brief bwGUID
+ */
+struct bwGUID {
+  uint32_t  Data1;
+  uint16_t Data2;
+  uint16_t Data3;
+  uint8_t  Data4[8];
+};
+
+inline bool guidsEqual(bwGUID guid1, bwGUID guid2) {
+  return memcmp(&guid1, &guid2, sizeof(bwGUID)) == 0;
+}
+
+#define sKSDATAFORMAT_SUBTYPE_PCM ((bwGUID){0x00000001, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71})
+#define sKSDATAFORMAT_SUBTYPE_IEEE_FLOAT ((bwGUID){0x00000003, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71})
+
+#define WAVE_FORMAT_PCM (0x0001)
+#define WAVE_FORMAT_IEEE_FLOAT (0x0003)
+#define WAVE_FORMAT_EXTENSIBLE (0xFFFE)
+
+
 }  // namespace bw64

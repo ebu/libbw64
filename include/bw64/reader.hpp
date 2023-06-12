@@ -209,7 +209,7 @@ namespace bw64 {
     /**
      * @brief Seek a frame position in the DataChunk
      */
-    void seek(int32_t offset, std::ios_base::seekdir way = std::ios::beg) {
+    void seek(int64_t offset, std::ios_base::seekdir way = std::ios::beg) {
       auto numberOfFramesInt = utils::safeCast<int64_t>(numberOfFrames());
 
       // where to seek relative to according to way
@@ -230,10 +230,8 @@ namespace bw64 {
         frame = numberOfFramesInt;
 
       // the position in the file of the frame
-      const int64_t dataStartPos =
-          getChunkHeader(utils::fourCC("data")).position + 8;
       const int64_t framePos =
-          dataStartPos + frame * static_cast<int64_t>(blockAlignment());
+          dataStartPos() + frame * static_cast<int64_t>(blockAlignment());
 
       fileStream_.seekg(framePos);
 
@@ -272,14 +270,39 @@ namespace bw64 {
     }
 
     /**
+     * @brief Read raw frames from dataChunk
+     *
+     * @param[out] outBuffer Buffer to write the samples to
+     * @param[in]  frames    Number of frames to read
+     *
+     * @returns number of frames read
+     * @discussion outBuffer must match the wave formats internal
+     *   type (16, 24, or 32 bit), (int or float).
+     */
+    template <typename T>
+    uint64_t readRaw(T* outBuffer, uint64_t frames) {
+      if (frames > numberOfFrames() - tell()) {
+        frames = numberOfFrames() - tell();
+      }
+
+      if (frames) {
+        fileStream_.read((char *)outBuffer, frames * blockAlignment());
+        if (fileStream_.eof())
+          throw std::runtime_error("file ended while reading frames");
+        if (!fileStream_.good())
+          throw std::runtime_error("file error while reading frames");
+      }
+
+      return frames;
+    }
+
+    /**
      * @brief Tell the current frame position of the dataChunk
      *
      * @returns current frame position of the dataChunk
      */
     uint64_t tell() {
-      return ((uint64_t)fileStream_.tellg() -
-              getChunkHeader(utils::fourCC("data")).position - 8u) /
-             formatChunk()->blockAlignment();
+      return ((uint64_t)fileStream_.tellg() - dataStartPos()) / formatChunk()->blockAlignment();
     }
 
     /**
@@ -289,6 +312,11 @@ namespace bw64 {
      */
     bool eof() { return tell() == numberOfFrames(); }
 
+    
+    uint64_t dataStartPos() {
+      return getChunkHeader(utils::fourCC("data")).position + 8u;
+    }
+    
    private:
     void readRiffChunk() {
       uint32_t riffType;

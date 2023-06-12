@@ -49,7 +49,10 @@ namespace bw64 {
      */
     Bw64Writer(const char* filename, uint16_t channels, uint32_t sampleRate,
                uint16_t bitDepth,
-               std::vector<std::shared_ptr<Chunk>> additionalChunks) {
+               std::vector<std::shared_ptr<Chunk>> additionalChunks,
+               bool useExtensible = false,
+               bool useFloat = false,
+               uint32_t channelMask = 0) {
       fileStream_.open(filename, std::fstream::out | std::fstream::binary);
       if (!fileStream_.is_open()) {
         std::stringstream errorString;
@@ -58,9 +61,19 @@ namespace bw64 {
       }
       writeRiffHeader();
       writeChunkPlaceholder(utils::fourCC("JUNK"), 28u);
-      auto formatChunk =
-          std::make_shared<FormatInfoChunk>(channels, sampleRate, bitDepth);
-      writeChunk(formatChunk);
+      
+      if (useExtensible) {
+        auto formatChunk = std::make_shared<FormatInfoChunk>(channels, sampleRate, bitDepth,
+          std::make_shared<ExtraData>(bitDepth, channelMask,
+            useFloat ? sKSDATAFORMAT_SUBTYPE_IEEE_FLOAT : sKSDATAFORMAT_SUBTYPE_PCM),
+          WAVE_FORMAT_EXTENSIBLE);
+        writeChunk(formatChunk);
+      } else {
+        auto formatChunk = std::make_shared<FormatInfoChunk>(channels, sampleRate, bitDepth,
+          nullptr,
+          useFloat ? WAVE_FORMAT_IEEE_FLOAT : WAVE_FORMAT_PCM);
+        writeChunk(formatChunk);
+      }
 
       for (auto chunk : additionalChunks) {
         writeChunk(chunk);
@@ -287,7 +300,7 @@ namespace bw64 {
     /**
      * @brief Write frames to dataChunk
      *
-     * @param[out] inBuffer Buffer to read samples from
+     * @param[in] inBuffer Buffer to read samples from
      * @param[in]  frames   Number of frames to write
      *
      * @returns number of frames written
@@ -305,6 +318,33 @@ namespace bw64 {
       chunkHeader(utils::fourCC("data")).size = dataChunk()->size();
       return frames;
     }
+
+
+    /**
+     * @brief Write frames to dataChunk
+     *
+     * @param[in]  inBuffer Buffer of interleaved samples to write
+     * @param[in]  frames   Number of frames to write
+     *
+     * @returns number of frames written
+     * @discussion inBuffer must match the wave formats internal
+     *   type (16, 24, or 32 bit), (int or float).
+     */
+    template <typename T>
+    uint64_t writeRaw(T* inBuffer, uint64_t frames) {
+      if (formatChunk()->bitsPerSample() != sizeof(T) * 8) {
+        throw std::runtime_error("format wrong size");
+      }
+      int frameSize = formatChunk()->blockAlignment();
+      uint64_t bytesToWrite = frames * frameSize;
+      uint64_t start = fileStream_.tellp();
+      fileStream_.write((char *)inBuffer, bytesToWrite);
+      uint64_t end = fileStream_.tellp();
+      dataChunk()->setSize(dataChunk()->size() + (end - start));
+      chunkHeader(utils::fourCC("data")).size = dataChunk()->size();
+      return (end - start) / frameSize;
+    }
+    
 
    private:
     std::ofstream fileStream_;

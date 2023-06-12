@@ -22,6 +22,7 @@ TEST_CASE("format_info_chunk") {
     REQUIRE(formatInfoChunk->bytesPerSecond() == 96000);
     REQUIRE(formatInfoChunk->blockAlignment() == 2);
     REQUIRE(formatInfoChunk->bitsPerSample() == 16);
+    REQUIRE(formatInfoChunk->isExtensible() == false);
     REQUIRE(formatInfoChunk->extraData() == nullptr);
   }
   // wrong chunkSize
@@ -162,19 +163,17 @@ TEST_CASE("format_info_chunk_extradata") {
         "\x16\x00"  // cbSize = 22
         "\x10\x00"  // validBitsPerSample = 16
         "\x04\x00\x00\x00"  // dwChannelMask = SPEAKER_FRONT_CENTER
-        "\x01\x00\x00\x00\x00\x00\x00\x10\x80\x00\x00\xaa\x00\x38\x9b\x71";  // KSDATAFORMAT_SUBTYPE_PCM
+        "\x01\x00\x00\x00\x00\x00\x10\x00\x80\x00\x00\xaa\x00\x38\x9b\x71";  // KSDATAFORMAT_SUBTYPE_PCM
     std::istringstream formatChunkStream(std::string(formatChunkByteArray, 40));
     auto formatInfoChunk =
         parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 40);
+    REQUIRE(formatInfoChunk->isExtensible() == true);
     auto extraData = formatInfoChunk->extraData();
     REQUIRE(extraData != nullptr);
     REQUIRE(extraData->validBitsPerSample() == 16);
     REQUIRE(extraData->dwChannelMask() == 4);
-    REQUIRE(extraData->subFormat() == 1);
-    REQUIRE(
-        extraData->subFormatString() ==
-        std::string("\x00\x00\x00\x00\x00\x10\x80\x00\x00\xaa\x00\x38\x9b\x71",
-                    14));
+    REQUIRE(extraData->subFormat().Data1 == 1);
+    REQUIRE(guidsEqual(extraData->subFormat(), sKSDATAFORMAT_SUBTYPE_PCM) == true);
 
     SECTION("write") {
       std::ostringstream written;
@@ -191,7 +190,7 @@ TEST_CASE("format_info_chunk_extradata") {
         "\x16\x00"  // cbSize = 22
         "\x10\x00"  // validBitsPerSample = 16
         "\x04\x00\x00\x00"  // dwChannelMask = SPEAKER_FRONT_CENTER
-        "\x01\x00\x00\x00\x00\x00\x00\x10\x80\x00\x00\xaa\x00\x38\x9b\x71";  // KSDATAFORMAT_SUBTYPE_PCM
+        "\x01\x00\x00\x00\x00\x00\x10\x00\x80\x00\x00\xaa\x00\x38\x9b\x71";  // KSDATAFORMAT_SUBTYPE_PCM
     std::istringstream formatChunkStream(std::string(formatChunkByteArray, 40));
     REQUIRE_THROWS_AS(
         parseFormatInfoChunk(formatChunkStream, utils::fourCC("fmt "), 40),
