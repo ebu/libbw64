@@ -385,9 +385,7 @@ namespace bw64 {
 
         // determine chunk size, skipping a padding byte
         std::streamoff chunk_size =
-            utils::safeCast<std::streamoff>(chunkHeader.size);
-        if (chunk_size % 2 != 0)
-          chunk_size = utils::safeAdd<std::streamoff>(chunk_size, 1);
+        utils::safeCast<std::streamoff>(chunkHeader.size);
 
         std::streamoff chunk_end =
             utils::safeAdd<std::streamoff>(fileStream_.tellg(), chunk_size);
@@ -395,11 +393,15 @@ namespace bw64 {
         if (chunk_end > end)
           throw std::runtime_error("chunk ends after end of file");
 
+        chunkHeaders_.push_back(chunkHeader);
+
+        if (chunk_end < end) {
+          if (chunk_size % 2 != 0)
+            chunk_size = utils::safeAdd<std::streamoff>(chunk_size, 1);
+        }
         fileStream_.seekg(chunk_size, std::ios::cur);
         if (!fileStream_.good())
           throw std::runtime_error("file error while seeking past chunk");
-
-        chunkHeaders_.push_back(chunkHeader);
       }
     }
 
