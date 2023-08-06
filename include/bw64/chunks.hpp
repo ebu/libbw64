@@ -83,26 +83,22 @@ namespace bw64 {
    public:
     /// @brief ExtraData constructor
     ExtraData(uint16_t validBitsPerSample, uint32_t dwChannelMask,
-              uint16_t subFormat, std::string subFormatString)
+              bwGUID subFormat)
         : validBitsPerSample_(validBitsPerSample),
           dwChannelMask_(dwChannelMask),
-          subFormat_(subFormat),
-          subFormatString_(subFormatString) {}
+          subFormat_(subFormat) {}
 
     /// @brief ValidBitsPerSample getter
     uint16_t validBitsPerSample() const { return validBitsPerSample_; }
     /// @brief DwChannelMask getter
     uint32_t dwChannelMask() const { return dwChannelMask_; }
     /// @brief SubFormat getter
-    uint16_t subFormat() const { return subFormat_; }
-    /// @brief SubFormatString getter
-    std::string subFormatString() const { return subFormatString_; }
+    bwGUID subFormat() const { return subFormat_; }
 
    private:
     uint16_t validBitsPerSample_;
     uint32_t dwChannelMask_;
-    uint16_t subFormat_;
-    std::string subFormatString_;
+    bwGUID subFormat_;
   };
 
   /**
@@ -121,12 +117,22 @@ namespace bw64 {
      */
     FormatInfoChunk(uint16_t channels, uint32_t sampleRate, uint32_t bitDepth,
                     std::shared_ptr<ExtraData> extraData = nullptr,
-                    uint16_t formatTag = 1) {
+                    uint16_t formatTag = WAVE_FORMAT_PCM) {
       formatTag_ = formatTag;
       channelCount_ = channels;
       sampleRate_ = sampleRate;
       bitsPerSample_ = bitDepth;
       extraData_ = extraData;
+      
+      if (formatTag_ == WAVE_FORMAT_EXTENSIBLE) {
+        if (!extraData_) {
+          throw std::runtime_error("need extraData when specifying extensible");
+        }
+        bwGUID guid{extraData_->subFormat()};
+        if (guid.Data1 != WAVE_FORMAT_PCM && guid.Data1 != WAVE_FORMAT_IEEE_FLOAT) {
+          throw std::runtime_error("unsupported extensible subformat");
+        }
+      }
 
       // validation
       if (channelCount_ < 1) {
@@ -153,7 +159,7 @@ namespace bw64 {
     }
 
     uint32_t id() const override { return utils::fourCC("fmt "); }
-    uint64_t size() const override { return 16u; }
+    uint64_t size() const override { return 16u + (isExtensible() ? 2 + 22 : 0); }
 
     /// @brief FormatTag getter
     uint16_t formatTag() const { return formatTag_; }
@@ -176,6 +182,20 @@ namespace bw64 {
 
     /// @brief ExtraData getter
     const std::shared_ptr<ExtraData> extraData() const { return extraData_; }
+	  
+    bool isExtensible() const {
+      return formatTag_ == WAVE_FORMAT_EXTENSIBLE && extraData();
+    }
+    bool isFloat() const {
+      if (isExtensible()) {
+        if (guidsEqual(extraData()->subFormat(), sKSDATAFORMAT_SUBTYPE_IEEE_FLOAT)) {
+          return true;
+        }
+      } else if (formatTag_ == WAVE_FORMAT_IEEE_FLOAT) {
+        return true;
+      }
+      return false;
+    }
 
     void write(std::ostream& stream) const override {
       utils::writeValue(stream, formatTag());
@@ -184,12 +204,15 @@ namespace bw64 {
       utils::writeValue(stream, bytesPerSecond());
       utils::writeValue(stream, blockAlignment());
       utils::writeValue(stream, bitsPerSample());
-      if (extraData()) {
+      if (isExtensible()) {
         utils::writeValue(stream, uint16_t{22});  // cbSize
         utils::writeValue(stream, extraData()->validBitsPerSample());
         utils::writeValue(stream, extraData()->dwChannelMask());
-        utils::writeValue(stream, extraData()->subFormat());
-        stream << extraData()->subFormatString();
+        bwGUID guid = extraData()->subFormat();
+        utils::writeValue(stream, guid.Data1);
+        utils::writeValue(stream, guid.Data2);
+        utils::writeValue(stream, guid.Data3);
+        stream.write((char *)guid.Data4, 8);
       }
     }
 

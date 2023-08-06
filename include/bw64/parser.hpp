@@ -13,15 +13,12 @@ namespace bw64 {
   inline std::shared_ptr<ExtraData> parseExtraData(std::istream& stream) {
     uint16_t validBitsPerSample;
     uint32_t dwChannelMask;
-    uint16_t subFormat;
-    char subFormatString[14];
+    bwGUID subFormat;
     utils::readValue(stream, validBitsPerSample);
     utils::readValue(stream, dwChannelMask);
     utils::readValue(stream, subFormat);
-    utils::readValue(stream, subFormatString);
     return std::make_shared<ExtraData>(validBitsPerSample, dwChannelMask,
-                                       subFormat,
-                                       std::string(subFormatString, 14));
+                                       subFormat);
   }
 
   /// @brief Parse FormatInfoChunk from input stream
@@ -66,12 +63,12 @@ namespace bw64 {
       }
     }
 
-    if (formatTag == 1) {
+    if (formatTag == WAVE_FORMAT_PCM || formatTag == WAVE_FORMAT_IEEE_FLOAT) {
       if (cbSize != 0) {
         throw std::runtime_error(
             "WAVE_FORMAT_PCM fmt chunk should not have extra data");
       }
-    } else if (formatTag == 0xfffe) {
+    } else if (formatTag == WAVE_FORMAT_EXTENSIBLE) {
       if (cbSize != 22) {
         std::stringstream errorString;
         errorString << "WAVE_FORMAT_EXTENSIBLE fmt chunk must have 22 bytes of "
@@ -82,7 +79,8 @@ namespace bw64 {
 
       extraData = parseExtraData(stream);
 
-      if (extraData->subFormat() != 1) {
+      uint32_t Data1 = extraData->subFormat().Data1;
+      if (Data1 != WAVE_FORMAT_PCM && Data1 != WAVE_FORMAT_IEEE_FLOAT) {
         throw std::runtime_error("subformat unsupported");
       }
     } else {
