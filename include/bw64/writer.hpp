@@ -267,6 +267,15 @@ namespace bw64 {
     /// @brief Overwrite chunk template
     template <typename ChunkType>
     void overwriteChunk(uint32_t id, std::shared_ptr<ChunkType> chunk) {
+      if (chunk->size() > chunkHeader(id).size) {
+        std::stringstream errorMsg;
+        errorMsg << utils::fourCCToStr(chunk->id()) << " chunk is too large ("
+                 << chunk->size() << " bytes) to overwrite "
+                 << utils::fourCCToStr(id) << " chunk (" << chunkHeader(id).size
+                 << " bytes)";
+        throw std::runtime_error(errorMsg.str());
+      }
+
       auto last_position = fileStream_.tellp();
       seekChunk(id);
       utils::writeChunk<ChunkType>(fileStream_, chunk, chunkSizeForHeader(id));
