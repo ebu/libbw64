@@ -74,21 +74,39 @@ namespace bw64 {
       writeChunk(dataChunk);
     }
 
-    /**
-     * @brief Finalize file
-     *
-     * This destructor will write all yet-to-be-written chunks to the file
-     * and will also finalize all required information, i.e. the final chunk
-     * sizes etc.
-     */
-    ~Bw64Writer() {
-      finalizeDataChunk();
-      for (auto chunk : postDataChunks_) {
-        writeChunk(chunk);
+    /// finalise and close the file
+    ///
+    /// Write all yet-to-be-written chunks to the file and finalize all
+    /// required information, i.e. the final chunk sizes etc.
+    ///
+    /// It is recommended to call this before the destructor, to handle
+    /// exceptions. If it does throw, this object may be in an invalid state,
+    /// so do not try again without creating a new object.
+    void close() {
+      if (!fileStream_.is_open()) return;
+
+      try {
+        finalizeDataChunk();
+        for (auto chunk : postDataChunks_) {
+          writeChunk(chunk);
+        }
+        finalizeRiffChunk();
+        fileStream_.close();
+      } catch (...) {
+        // ensure that if an exception is thrown the file is still closed, so
+        // the destructor does not throw the same exception
+        fileStream_.close();
+        throw;
       }
-      finalizeRiffChunk();
-      fileStream_.close();
+
+      if (!fileStream_.good())
+        throw std::runtime_error("file error detected when closing");
     }
+
+    /// destructor; this will finalise and close the file if it has not
+    /// already been done, but it is recommended to call close() first to
+    /// handle exceptions
+    ~Bw64Writer() { close(); }
 
     /// @brief Get format tag
     uint16_t formatTag() const { return formatChunk()->formatTag(); };

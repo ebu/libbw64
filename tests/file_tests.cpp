@@ -16,6 +16,7 @@ TEST_CASE("read_rect_16bit") {
   REQUIRE(bw64File->sampleRate() == 44100u);
   REQUIRE(bw64File->channels() == 2u);
   REQUIRE(bw64File->numberOfFrames() == 22050u);
+  bw64File->close();
 }
 
 TEST_CASE("read_rect_24bit") {
@@ -25,6 +26,7 @@ TEST_CASE("read_rect_24bit") {
   REQUIRE(bw64File->sampleRate() == 44100u);
   REQUIRE(bw64File->channels() == 2u);
   REQUIRE(bw64File->numberOfFrames() == 22050u);
+  bw64File->close();
 }
 
 TEST_CASE("read_rect_32bit") {
@@ -34,6 +36,7 @@ TEST_CASE("read_rect_32bit") {
   REQUIRE(bw64File->sampleRate() == 44100u);
   REQUIRE(bw64File->channels() == 2u);
   REQUIRE(bw64File->numberOfFrames() == 22050u);
+  bw64File->close();
 }
 
 TEST_CASE("read_rect_24bit_rf64") {
@@ -43,6 +46,7 @@ TEST_CASE("read_rect_24bit_rf64") {
   REQUIRE(bw64File->sampleRate() == 44100u);
   REQUIRE(bw64File->channels() == 2u);
   REQUIRE(bw64File->numberOfFrames() == 22050u);
+  bw64File->close();
 }
 
 TEST_CASE("read_rect_24bit_noriff") {
@@ -68,6 +72,7 @@ TEST_CASE("read_noise_24bit_uneven_data_chunk_size") {
   REQUIRE(bw64File->chnaChunk() != nullptr);
   REQUIRE(bw64File->hasChunk(utils::fourCC("axml")) == false);
   REQUIRE(bw64File->axmlChunk() == nullptr);
+  bw64File->close();
 }
 
 TEST_CASE("read_check_chunks") {
@@ -78,6 +83,7 @@ TEST_CASE("read_check_chunks") {
   REQUIRE(bw64File->hasChunk(utils::fourCC("fmt ")) == true);
   REQUIRE(bw64File->hasChunk(utils::fourCC("chna")) == false);
   REQUIRE(bw64File->hasChunk(utils::fourCC("axml")) == false);
+  bw64File->close();
 }
 
 TEST_CASE("read_seek_tell") {
@@ -108,6 +114,8 @@ TEST_CASE("read_seek_tell") {
   REQUIRE(bw64File->tell() == 11025);
   bw64File->seek(INT32_MAX, std::ios::end);
   REQUIRE(bw64File->tell() == 22050);
+
+  bw64File->close();
 }
 
 TEST_CASE("write_16bit") {
@@ -121,6 +129,7 @@ TEST_CASE("write_16bit") {
   std::vector<float> data(frames * bw64File->channels(), 0.0);
   bw64File->write(&data[0], frames);
   REQUIRE(bw64File->framesWritten() == frames);
+  bw64File->close();
 }
 
 TEST_CASE("write_24bit") {
@@ -134,6 +143,7 @@ TEST_CASE("write_24bit") {
   std::vector<float> data(frames * bw64File->channels(), 0.0);
   bw64File->write(&data[0], frames);
   REQUIRE(bw64File->framesWritten() == frames);
+  bw64File->close();
 }
 
 TEST_CASE("write_32bit") {
@@ -147,6 +157,7 @@ TEST_CASE("write_32bit") {
   std::vector<float> data(frames * bw64File->channels(), 0.0);
   bw64File->write(&data[0], frames);
   REQUIRE(bw64File->framesWritten() == frames);
+  bw64File->close();
 }
 
 void writeClipped(const std::string& filename, uint16_t bitDepth,
@@ -155,6 +166,7 @@ void writeClipped(const std::string& filename, uint16_t bitDepth,
   auto bw64File = writeFile(filename, channels, sampleRate, bitDepth);
   std::vector<float> data(frames * channels, 2.f);
   bw64File->write(&data[0], frames);
+  bw64File->close();
 }
 
 TEST_CASE("write_read_16bit_clipped") {
@@ -218,6 +230,7 @@ void writeRandom(const std::string& filename, uint16_t bitDepth,
 
   auto bw64File = writeFile(filename, channels, sampleRate, bitDepth);
   bw64File->write(&data[0], frames);
+  bw64File->close();
 }
 
 TEST_CASE("write_read_riff_header") {
@@ -271,6 +284,8 @@ TEST_CASE("write_read_big", "[.big]") {
 
     for (uint64_t frame = 0; frame < frames; frame += block.size())
       bw64File->write(&block[0], block.size());
+
+    bw64File->close();
   }
 
   {
@@ -312,6 +327,8 @@ TEST_CASE("write_read_big_axml", "[.big]") {
     for (size_t i = 0; i < block.size(); i++)
       block[i] = (i % 2 == 0) ? 0.5f : 0.0f;
     bw64File->write(&block[0], block.size());
+
+    bw64File->close();
   }
 
   {

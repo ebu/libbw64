@@ -53,6 +53,8 @@ table.
 
 Note that we don't need to close our file at the end of the programme. This will
 be done automatically when ``inFile`` is destroyed at the end of the programme.
+In real applications :cpp:func:`bw64::Bw64Reader::close()` should be calles
+before destruction to be able to properly catch exceptions.
 
 Write files
 -----------
@@ -92,6 +94,10 @@ passed to the :cpp:func:`bw64::Bw64Reader::read()` in the
 :cpp:func:`bw64::Bw64Writer::write()` function to write the unmodified samples.
 So also the :cpp:func:`bw64::Bw64Writer::write()` expects the order of the
 samples to be interleaved as described above.
+
+As with reading, the file will be automatically closed during destruction, but
+in real applications :cpp:func:`bw64::Bw64Writer::close()` should be called
+before destruction to be able to properly catch exceptions.
 
 Add signal processing
 ---------------------

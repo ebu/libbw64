@@ -81,13 +81,22 @@ namespace bw64 {
       seek(0);
     }
 
-    /**
-     * @brief Bw64Reader destructor
-     *
-     * The destructor will automatically close the file opened in the
-     * constructor.
-     */
-    ~Bw64Reader() { fileStream_.close(); }
+    /// close the file
+    ///
+    /// It is recommended to call this before the destructor, to handle
+    /// exceptions.
+    void close() {
+      if (!fileStream_.is_open()) return;
+
+      fileStream_.close();
+
+      if (!fileStream_.good())
+        throw std::runtime_error("file error detected when closing");
+    }
+
+    /// destructor; this will close the file if it has not already been done,
+    /// but it is recommended to call close() first to handle exceptions
+    ~Bw64Reader() { close(); }
 
     /// @brief Get file format (RIFF, BW64 or RF64)
     uint32_t fileFormat() const { return fileFormat_; }
