@@ -23,6 +23,7 @@ This version fixes a number of buffer overruns, integer overflows, and uses of u
 
 - Fix sample rate parameter type in `writeFile()` and `BW64Writer` ctor to support 96k samplerates
 - fmt extra data is now written correctly
+- axml chunks greater than 4GB are now written correctly
 
 ## 0.10.0 - (January 18, 2019)
 ### Added

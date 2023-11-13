@@ -290,3 +290,52 @@ TEST_CASE("write_read_big", "[.big]") {
     }
   }
 }
+
+TEST_CASE("write_read_big_axml", "[.big]") {
+  std::string filename = "big_axml.wav";
+  size_t blockSize = 1000;
+  uint64_t axml_size = 0x100000000ull;
+
+  const char* pattern = "AXML";
+
+  {
+    std::string axml_data(axml_size, 0);
+    for (size_t i = 0; i < axml_data.size(); i++) axml_data[i] = pattern[i % 4];
+
+    auto axml = std::make_shared<AxmlChunk>(std::move(axml_data));
+
+    auto bw64File = writeFile(filename, 1, 48000, 16, nullptr, axml);
+
+    std::vector<float> block(blockSize);
+    for (size_t i = 0; i < block.size(); i++)
+      block[i] = (i % 2 == 0) ? 0.5f : 0.0f;
+    bw64File->write(&block[0], block.size());
+  }
+
+  {
+    auto bw64File = readFile(filename);
+
+    // check samples
+    REQUIRE(bw64File->numberOfFrames() == blockSize);
+    std::vector<float> block(blockSize);
+    auto readFrames = bw64File->read(&block[0], blockSize);
+    REQUIRE(readFrames == blockSize);
+    for (size_t i = 0; i < blockSize; i++) {
+      if (i % 2 == 0)
+        REQUIRE(block[i] == Approx(0.5f).epsilon(1e-2));
+      else
+        REQUIRE(block[i] == Approx(0.0f).epsilon(1e-2));
+    }
+
+    // check axml
+    auto axml = bw64File->axmlChunk();
+    REQUIRE(axml);
+
+    auto& axml_data = axml->data();
+    REQUIRE(axml_data.size() == axml_size);
+
+    for (size_t i = 0; i < axml_data.size(); i++) {
+      REQUIRE(axml_data[i] == pattern[i % 4]);
+    }
+  }
+}

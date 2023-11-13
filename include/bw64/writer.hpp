@@ -151,9 +151,10 @@ namespace bw64 {
       if (riffChunkSize() > UINT32_MAX) {
         return true;
       }
-      if (dataChunk()->size() > UINT32_MAX) {
-        return true;
-      }
+
+      for (auto& header : chunkHeaders_)
+        if (header.size > UINT32_MAX) return true;
+
       return false;
     }
 
@@ -223,8 +224,13 @@ namespace bw64 {
     void overwriteJunkWithDs64Chunk() {
       auto ds64Chunk = std::make_shared<DataSize64Chunk>();
       ds64Chunk->bw64Size(riffChunkSize());
+      // write data size even if it's not too big
       ds64Chunk->dataSize(dataChunk()->size());
-      // TODO: add other chunks which are bigger than 4GB
+
+      for (auto& header : chunkHeaders_)
+        if (header.size > UINT32_MAX)
+          ds64Chunk->setChunkSize(header.id, header.size);
+
       overwriteChunk(utils::fourCC("JUNK"), ds64Chunk);
     }
 
