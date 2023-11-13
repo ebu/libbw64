@@ -353,3 +353,56 @@ TEST_CASE("ds64_chunk") {
         std::runtime_error);
   }
 }
+
+TEST_CASE("axml_chunk") {
+  size_t size = 200;
+
+  std::string str_data(size, 0);
+  const char* axml_str = "AXML";
+  for (size_t i = 0; i < size; i++) str_data[i] = axml_str[i % 4];
+
+  // check that null bytes are passed correctly
+  str_data[100] = 0;
+
+  AxmlChunk chunk(str_data);
+
+  REQUIRE(chunk.size() == size);
+
+  std::ostringstream stream;
+  chunk.write(stream);
+
+  REQUIRE(stream.tellp() == size);
+  REQUIRE(stream.str() == str_data);
+}
+
+TEST_CASE("axml_chunk_bench", "[.bench]") {
+  size_t size = 10000000;
+
+  std::string str_data(size, 0);
+  const char* pattern = "AXML";
+  for (size_t i = 0; i < size; i++) str_data[i] = pattern[i % 4];
+
+  BENCHMARK("from string copy") {
+    AxmlChunk chunk(str_data);
+    return chunk.size();
+  };
+
+  BENCHMARK_ADVANCED("from string move")(Catch::Benchmark::Chronometer meter) {
+    std::string str_data_copy(str_data);
+
+    meter.measure([&] {
+      AxmlChunk chunk(std::move(str_data_copy));
+      return chunk.size();
+    });
+  };
+
+  BENCHMARK_ADVANCED("write")(Catch::Benchmark::Chronometer meter) {
+    AxmlChunk chunk(str_data);
+    std::ostringstream stream;
+
+    meter.measure([&] {
+      chunk.write(stream);
+      return stream.tellp();
+    });
+  };
+}
