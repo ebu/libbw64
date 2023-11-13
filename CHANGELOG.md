@@ -8,6 +8,7 @@ This version fixes a number of buffer overruns, integer overflows, and uses of u
 
 - library can now easier be used as a CMake subproject
 - new CMake option `BW64_PACKAGE_AND_INSTALL`
+- `AxmlChunk::data()`; this allows access to the internal string, avoiding a copy when reading
 
 ### Changed
 

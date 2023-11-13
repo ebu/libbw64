@@ -367,6 +367,7 @@ TEST_CASE("axml_chunk") {
   AxmlChunk chunk(str_data);
 
   REQUIRE(chunk.size() == size);
+  REQUIRE(chunk.data() == str_data);
 
   std::ostringstream stream;
   chunk.write(stream);

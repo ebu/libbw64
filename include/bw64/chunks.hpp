@@ -266,6 +266,8 @@ namespace bw64 {
      */
     void write(std::ostream& stream) const override { stream << data_; }
 
+    const std::string& data() const { return data_; }
+
    private:
     std::string data_;
   };
