@@ -360,3 +360,38 @@ TEST_CASE("write_read_big_axml", "[.big]") {
 
   remove(filename.c_str());
 }
+
+/// dummy chunk that just writes spaces
+class MegaChunk : public Chunk {
+ public:
+  MegaChunk(uint32_t id, uint64_t size) : id_(id), size_(size) {}
+
+  uint32_t id() const override { return id_; }
+  uint64_t size() const override { return size_; }
+
+  void write(std::ostream& stream) const override {
+    for (size_t i = 0; i < size_; i++) stream << ' ';
+  }
+
+ private:
+  uint32_t id_;
+  uint64_t size_;
+};
+
+TEST_CASE("write_too_many_big_chunks", "[.big]") {
+  std::string filename = "too_many_big_chunks.wav";
+
+  auto bw64File = writeFile(filename, 1, 48000, 16, nullptr);
+
+  // TODO: setAxmlChunk should really be renamed...
+  bw64File->setAxmlChunk(
+      std::make_shared<MegaChunk>(utils::fourCC("mega"), 0x100000000ull));
+  bw64File->setAxmlChunk(
+      std::make_shared<MegaChunk>(utils::fourCC("megb"), 0x100000000ull));
+
+  REQUIRE_THROWS_WITH(
+      bw64File->close(),
+      "ds64 chunk is too large (52 bytes) to overwrite JUNK chunk (40 bytes)");
+
+  remove(filename.c_str());
+}
