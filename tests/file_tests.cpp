@@ -289,6 +289,8 @@ TEST_CASE("write_read_big", "[.big]") {
       }
     }
   }
+
+  remove(filename.c_str());
 }
 
 TEST_CASE("write_read_big_axml", "[.big]") {
@@ -338,4 +340,6 @@ TEST_CASE("write_read_big_axml", "[.big]") {
       REQUIRE(axml_data[i] == pattern[i % 4]);
     }
   }
+
+  remove(filename.c_str());
 }
