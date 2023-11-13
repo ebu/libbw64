@@ -16,6 +16,7 @@ This version fixes a number of buffer overruns, integer overflows, and uses of u
 - Renamed CMake option `EXAMPLES` to `BW64_EXAMPLES`
 - `FormatInfoChunk::formatTag` now matches the formatTag in the file, rather than always returning 1
 - fmt parsing is stricter -- the chunk size must match the use of cbSize, and the presence if extra data is checked against the formatTag
+- strings can be moved into `AxmlChunk` with `std::make_shared<AxmlChunk>(std:move(some_str))`, to avoid a copy when writing
 
 ### Fixed
 

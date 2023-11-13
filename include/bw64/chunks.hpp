@@ -256,9 +256,7 @@ namespace bw64 {
    public:
     static uint32_t Id() { return utils::fourCC("axml"); }
 
-    AxmlChunk(const std::string& axml) {
-      std::copy(axml.begin(), axml.end(), std::back_inserter(data_));
-    }
+    AxmlChunk(std::string axml) : data_(std::move(axml)) {}
 
     uint32_t id() const override { return AxmlChunk::Id(); }
     uint64_t size() const override { return data_.size(); }
@@ -266,13 +264,10 @@ namespace bw64 {
     /*
      * @brief Write the AxmlChunk to a stream
      */
-    void write(std::ostream& stream) const override {
-      std::copy(data_.begin(), data_.end(),
-                std::ostreambuf_iterator<char>(stream));
-    }
+    void write(std::ostream& stream) const override { stream << data_; }
 
    private:
-    std::vector<char> data_;
+    std::string data_;
   };
 
   /**
