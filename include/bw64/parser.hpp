@@ -120,8 +120,7 @@ namespace bw64 {
       errorString << "chunkId != 'axml'";
       throw std::runtime_error(errorString.str());
     }
-    std::string data;
-    data.resize(size);
+    std::string data(size, 0);
     // since c++11, std::string[0] returns a valid reference to a null byte for
     // size==0
     utils::readChunk(stream, &data[0], size);
