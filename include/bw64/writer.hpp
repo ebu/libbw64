@@ -57,7 +57,8 @@ namespace bw64 {
         throw std::runtime_error(errorString.str());
       }
       writeRiffHeader();
-      writeChunkPlaceholder(utils::fourCC("JUNK"), 28u);
+      // 28 byte ds64 header + 12 byte entry for axml
+      writeChunkPlaceholder(utils::fourCC("JUNK"), 40u);
       auto formatChunk =
           std::make_shared<FormatInfoChunk>(channels, sampleRate, bitDepth);
       writeChunk(formatChunk);

@@ -228,7 +228,7 @@ TEST_CASE("write_read_riff_header") {
   /**
    * 'WAVE' chunk header  :      4 bytes
    * 'JUNK' chunk header  :      8 bytes
-   * 'JUNK' chunk payload :     28 bytes
+   * 'JUNK' chunk payload :     40 bytes
    * 'fmt ' chunk header  :      8 bytes
    * 'fmt ' chunk payload :     16 bytes
    * 'chna' chunk header  :      8 bytes
@@ -236,9 +236,9 @@ TEST_CASE("write_read_riff_header") {
    * (numTracks/numUIDs) 'data' chunk header  :      8 bytes 'data' chunk
    * payload : 19.200 bytes (2 channels * 2 bytes per samples * 4800 frames)
    * --------------------------------------------------------------------------
-   *                        60244 bytes
+   *                        60256 bytes
    */
-  REQUIRE(bw64File->fileSize() == 60244);
+  REQUIRE(bw64File->fileSize() == 60256);
 }
 
 TEST_CASE("write_read_96000") {
