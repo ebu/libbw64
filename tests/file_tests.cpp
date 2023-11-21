@@ -270,6 +270,26 @@ TEST_CASE("can_read_all_frames") {
   REQUIRE(readSampleCount == 13);
 }
 
+TEST_CASE("write_read_odd_chunks_after") {
+  int frames = 13;
+
+  {
+    std::vector<float> data(frames, 0.5);
+    auto writer = writeFile("write_read_odd_chunks_after.wav", 1, 48000, 24);
+    writer->setAxmlChunk(std::make_shared<AxmlChunk>("axml"));
+    writer->write(&data[0], frames);
+    writer->close();
+  }
+
+  {
+    auto reader = readFile("write_read_odd_chunks_after.wav");
+    REQUIRE(reader->numberOfFrames() == frames);
+    auto axml = reader->axmlChunk();
+    REQUIRE(axml);
+    REQUIRE(axml->data() == "axml");
+  }
+}
+
 TEST_CASE("write_read_big", "[.big]") {
   uint64_t frames = 0x90000000UL;
   uint64_t blockSize = 0x1000UL;
